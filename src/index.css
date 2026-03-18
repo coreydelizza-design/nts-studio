@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════
+   GLOBAL RESETS & BASE
+   ═══════════════════════════════════════════════════ */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--nts-bg, #060a13);
+  color: var(--nts-text, #e8edf5);
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLLBAR — adapts to theme via CSS vars
+   ═══════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--nts-border, rgba(51,65,85,0.4)); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--nts-text-dim, rgba(71,85,105,0.6)); }
+
+/* ═══════════════════════════════════════════════════
+   FORM ELEMENTS — range thumb adapts to accent
+   ═══════════════════════════════════════════════════ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--nts-border, rgba(51,65,85,0.4));
+  border-radius: 10px;
+  outline: none;
+  height: 4px;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--nts-accent, #38bdf8);
+  cursor: pointer;
+  border: 3px solid var(--nts-bg, #060a13);
+  box-shadow: 0 0 8px rgba(56,189,248,0.5);
+}
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: var(--nts-border-focus, rgba(56,189,248,0.5)) !important;
+  box-shadow: 0 0 0 2px var(--nts-accent-dim, rgba(56,189,248,0.12));
+}
+
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(56,189,248,0.15); }
+  50% { box-shadow: 0 0 18px rgba(56,189,248,0.3); }
+}
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(56,189,248,0); }
+}
+@keyframes flowDash {
+  to { stroke-dashoffset: -20; }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.35s ease-out both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.10s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.20s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* ═══════════════════════════════════════════════════
+   CARD HOVER EFFECTS — adapts to theme
+   ═══════════════════════════════════════════════════ */
+.card-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  border-color: rgba(56,189,248,0.25) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 12px rgba(56,189,248,0.05) !important;
+}
+[data-theme="light"] .card-hover:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 12px rgba(14,165,233,0.04) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   THEME TRANSITION — smooth color changes globally
+   ═══════════════════════════════════════════════════ */
+[data-theme] * {
+  transition-property: background-color, border-color, color, box-shadow, fill, stroke;
+  transition-duration: 0s;
+}
+[data-theme].transitioning * {
+  transition-duration: 0.35s;
+  transition-timing-function: ease;
+}
+
+/* ═══════════════════════════════════════════════════
+   CANVAS NODE STYLES
+   ═══════════════════════════════════════════════════ */
+.canvas-node {
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+}
+.canvas-node:hover {
+  transform: scale(1.03);
+}
+
+/* ═══════════════════════════════════════════════════
+   BUTTON BASE
+   ═══════════════════════════════════════════════════ */
+button {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+button:hover {
+  filter: brightness(1.12);
+}
+button:active {
+  transform: scale(0.97);
+}

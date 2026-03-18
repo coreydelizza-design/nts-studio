@@ -1,6 +1,6 @@
 FROM node:20-slim
 WORKDIR /app
-COPY nts-clean/ .
+COPY . .
 RUN npm install
 RUN npm run build
 CMD ["node", "server.js"]
