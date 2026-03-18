@@ -42,7 +42,15 @@ src/
 │       │   ├── FutureStateVision.tsx
 │       │   └── index.ts
 │       ├── architecture-studio/
-│       │   ├── ArchitectureStudio.tsx
+│       │   ├── ArchitectureStudio.tsx  # Slim orchestrator (~160 lines)
+│       │   ├── constants.ts            # NODE_RISK, GTT_NODES, GTT_EDGES, UC_REF
+│       │   ├── PalettePanel.tsx        # Left sidebar palette + templates
+│       │   ├── CanvasToolbar.tsx       # Top toolbar (view mode, zoom, layers)
+│       │   ├── CanvasRenderer.tsx      # Canvas with nodes, edges, minimap
+│       │   ├── NodeInspector.tsx       # Right panel inspector tab
+│       │   ├── NotesPanel.tsx          # Right panel notes tab
+│       │   ├── DashboardPanel.tsx      # Right panel dashboard tab
+│       │   ├── UseCaseReference.tsx    # Right panel UC reference tab
 │       │   └── index.ts
 │       ├── tradeoff-lab/
 │       │   ├── TradeoffLab.tsx

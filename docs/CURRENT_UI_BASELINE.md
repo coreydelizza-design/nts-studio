@@ -44,12 +44,13 @@ Status of each tab as of this repo snapshot.
 **Store usage**: `visionSliders`, `visionPosture` (read/write)
 **Pending**: None — working correctly
 
-## Tab 6 — Architecture Studio (625 lines)
+## Tab 6 — Architecture Studio (~160 lines orchestrator + 7 sub-components)
 **State**: Connected to store + local canvas state
 **Shows**: Interactive node canvas, component palette, node inspector, notes panel, upstream data dashboard, GTT overlay view modes
 **Data source**: Store (archNodes, archEdges, notes, painScores, maturity, visionSliders)
 **Store usage**: Full read/write for architecture state, read-only for upstream data
-**Pending**: Sub-component split, GTT differentiators rebuild
+**Structure**: ArchitectureStudio.tsx (orchestrator) → PalettePanel, CanvasToolbar, CanvasRenderer, NodeInspector, NotesPanel, DashboardPanel, UseCaseReference + constants.ts
+**Pending**: GTT differentiators rebuild
 
 ## Tab 7 — Tradeoff Lab (55 lines)
 **State**: Placeholder
