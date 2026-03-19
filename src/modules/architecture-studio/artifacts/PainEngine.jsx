@@ -387,11 +387,16 @@ export default function PainEngine() {
 
     return <div key={item.id} style={{ marginTop: 6 }}>
       {/* Collapsed row */}
-      <div onClick={function () { setExpandedId(isExpanded ? null : item.id); }}
-        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 5, cursor: "pointer", opacity: isOff ? 0.35 : 1,
-          border: "1px solid " + (isExpanded ? th.accent + "50" : ac + "18"),
-          background: isExpanded ? th.accent + "06" : ac + "04" }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: ac, flexShrink: 0 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: isExpanded ? "5px 5px 0 0" : 5, opacity: isOff ? 0.35 : 1,
+        border: "1px solid " + (isExpanded ? th.accent + "50" : ac + "18"),
+        background: isExpanded ? th.accent + "06" : ac + "04" }}>
+        <button onClick={function (e) { e.stopPropagation(); toggleItem(item.id); }}
+          style={{ width: 18, height: 18, borderRadius: "50%", border: "1px solid " + (isOff ? th.t4 : th.ok + "60"), background: isOff ? th.t4 + "20" : th.ok + "15", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}
+          title={isOff ? "Enable — bring into scope" : "Disable — remove from scope"}>
+          <span style={{ fontSize: 10, color: isOff ? th.t4 : th.ok }}>{isOff ? "○" : "●"}</span>
+        </button>
+        <div onClick={function () { setExpandedId(isExpanded ? null : item.id); }}
+          style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, cursor: "pointer", minWidth: 0 }}>
         <Tag color={ac} style={{ flexShrink: 0 }}>{isPain ? "PAIN" : "CNST"}</Tag>
         <Tag color={sevC[item.severity]} style={{ flexShrink: 0 }}>{item.severity}</Tag>
         <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: isOff ? "line-through" : "none" }}>
@@ -409,7 +414,7 @@ export default function PainEngine() {
           <div style={{ width: 30, height: 24, borderRadius: 4, background: priC + "18", border: "1px solid " + priC + "35", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontSize: 12, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</span>
           </div>
-        </div>
+        </div></div>
         <button onClick={function (e) { e.stopPropagation(); deleteItem(item.id); }}
           style={{ width: 20, height: 20, borderRadius: 4, border: "none", background: "transparent", color: th.t4, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, fontSize: 11 }}
           title="Delete issue">
@@ -467,7 +472,6 @@ export default function PainEngine() {
           <EditField label="Resolution" value={item.resolution} onChange={function(v){updateItem(item.id,"resolution",v)}} th={th} type="textarea" placeholder="How resolved..." />
           <EditField label="Target Date" value={item.targetDate} onChange={function(v){updateItem(item.id,"targetDate",v)}} th={th} placeholder="YYYY-MM-DD" />
         </div>
-        <div style={{ marginTop: 6 }}><ToggleSwitch enabled={item.enabled !== false} onClick={function(){toggleItem(item.id)}} th={th} /></div>
       </div>}
     </div>;
   }
