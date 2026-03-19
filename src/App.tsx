@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { useWorkshopStore } from './store/useWorkshopStore';
 import AppShell from './components/layout/AppShell';
 import ErrorBoundary from './components/shared/ErrorBoundary';
@@ -12,6 +13,7 @@ import ArchitectureStudio from './components/sections/architecture-studio';
 import TradeoffLab from './components/sections/tradeoff-lab';
 import TransformationRoadmap from './components/sections/roadmap';
 import Deliverables from './components/sections/deliverables';
+import StandalonePainEngine from './modules/architecture-studio/artifacts/PainEngine';
 
 const TABS: Record<number, React.FC> = {
   0: CommandCenter,
@@ -26,7 +28,7 @@ const TABS: Record<number, React.FC> = {
   9: Deliverables,
 };
 
-const App: React.FC = () => {
+const Workshop: React.FC = () => {
   const { activeTab } = useWorkshopStore();
   const TabComponent = TABS[activeTab] || CommandCenter;
 
@@ -38,5 +40,12 @@ const App: React.FC = () => {
     </AppShell>
   );
 };
+
+const App: React.FC = () => (
+  <Routes>
+    <Route path="/pain-engine" element={<StandalonePainEngine />} />
+    <Route path="/*" element={<Workshop />} />
+  </Routes>
+);
 
 export default App;
