@@ -162,6 +162,15 @@ function AddBtn({ label, onClick, th }) {
   </button>;
 }
 
+function NextStep({ label, targetView, setView, setInspData, setEditingId, setInspDomain, th, color }) {
+  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 0", marginTop: 8 }}>
+    <button onClick={function () { setView(targetView); setInspData(null); setEditingId(null); setInspDomain(null); }}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 4, border: "1px solid " + (color || th.accent) + "30", background: (color || th.accent) + "06", color: color || th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>
+      {label} <span style={{ fontSize: 14 }}>→</span>
+    </button>
+  </div>;
+}
+
 // ═══════════════════════════════════════════════════════
 // SCORING ENGINE
 // ═══════════════════════════════════════════════════════
@@ -438,10 +447,87 @@ export default function PainEngine() {
       </div>;
     }
 
-    if (!inspData) return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.3 }}>
-      <span style={{ fontSize: 18, color: th.t4 }}>◈</span>
-      <span style={{ fontSize: 10, color: th.t3, textAlign: "center", marginTop: 6 }}>Select item to inspect</span>
-    </div>;
+    if (!inspData) {
+      if (view === "assessment") return <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5 }}>ASSESSMENT OVERVIEW</div>
+        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>Adjust sliders on the left. Click any affected item chip below a slider to inspect its cascading scores here.</div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>DOMAIN SUMMARY</div>
+          {allGroupAvgs.map(function (g) {
+            var c = g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok;
+            return <div key={g.group} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "3px 0" }}>
+              <span style={{ fontSize: 10, color: th.t2 }}>{g.icon} {g.group}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: c, fontFamily: "monospace" }}>{g.avg}</span>
+            </div>;
+          })}
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.accent + "06", border: "1px solid " + th.accent + "18" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace" }}>PAIN INTENSITY</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{overallPain}/100</span>
+          </div>
+        </div>
+      </div>;
+      if (view === "dashboard") return <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5 }}>DASHBOARD OVERVIEW</div>
+        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>Click any card on the left to inspect its scoring breakdown and edit fields.</div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>PRIORITY SNAPSHOT</div>
+          {[
+            { l: "CRITICAL", mn: 80, c: th.err },
+            { l: "HIGH", mn: 60, c: th.warn },
+            { l: "MEDIUM", mn: 40, c: th.accent },
+            { l: "LOW", mn: 0, c: th.ok }
+          ].map(function (b) {
+            var cnt = active.filter(function (i) { var p = engine.priority(i); return b.mn === 0 ? p < 40 : b.mn === 40 ? p >= 40 && p < 60 : b.mn === 60 ? p >= 60 && p < 80 : p >= 80; }).length;
+            return <div key={b.l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0" }}>
+              <Tag color={b.c}>{b.l}</Tag>
+              <span style={{ fontSize: 13, fontWeight: 700, color: b.c, fontFamily: "monospace" }}>{cnt}</span>
+            </div>;
+          })}
+        </div>
+      </div>;
+      if (view === "pains") return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 6 }}>
+        <span style={{ fontSize: 18, color: th.err, opacity: 0.3 }}>◈</span>
+        <span style={{ fontSize: 10, color: th.t3, textAlign: "center" }}>Click a pain point to inspect</span>
+        <span style={{ fontSize: 9, color: th.t4, textAlign: "center" }}>View scoring breakdown, edit fields, and toggle scope</span>
+      </div>;
+      if (view === "constraints") return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 6 }}>
+        <span style={{ fontSize: 18, color: th.warn, opacity: 0.3 }}>◈</span>
+        <span style={{ fontSize: 10, color: th.t3, textAlign: "center" }}>Click a constraint to inspect</span>
+        <span style={{ fontSize: 9, color: th.t4, textAlign: "center" }}>View scoring breakdown, edit fields, and toggle scope</span>
+      </div>;
+      if (view === "aiTrace") return <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 8, fontWeight: 700, color: th.purple, fontFamily: "monospace", letterSpacing: 0.5 }}>AI CONTEXT</div>
+        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>The AI will analyze these inputs when you click "Generate Traceability":</div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Pain Intensity</span><span style={{ fontSize: 12, fontWeight: 800, color: overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{overallPain}/100</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Active Pains</span><span style={{ fontSize: 12, fontWeight: 700, color: th.err, fontFamily: "monospace" }}>{activePains.length}</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Active Constraints</span><span style={{ fontSize: 12, fontWeight: 700, color: th.warn, fontFamily: "monospace" }}>{activeConstraints.length}</span></div>
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.purple + "06", border: "1px solid " + th.purple + "18" }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 4 }}>TOP DOMAINS</div>
+          {allGroupAvgs.slice(0, 3).map(function (g) { return <div key={g.group} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>{g.icon} {g.group}</span><span style={{ fontSize: 11, fontWeight: 700, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{g.avg}</span></div>; })}
+        </div>
+      </div>;
+      if (view === "aiResolve") return <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 8, fontWeight: 700, color: th.cyan, fontFamily: "monospace", letterSpacing: 0.5 }}>AI CONTEXT</div>
+        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>The AI will build a phased plan from these inputs when you click "Generate Resolution Plan":</div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Pain Intensity</span><span style={{ fontSize: 12, fontWeight: 800, color: overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{overallPain}/100</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Total Active Issues</span><span style={{ fontSize: 12, fontWeight: 700, color: th.accent, fontFamily: "monospace" }}>{active.length}</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>Critical Priority</span><span style={{ fontSize: 12, fontWeight: 700, color: th.err, fontFamily: "monospace" }}>{active.filter(function (i) { return engine.priority(i) >= 80; }).length}</span></div>
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.cyan + "06", border: "1px solid " + th.cyan + "18" }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.cyan, fontFamily: "monospace", marginBottom: 4 }}>TOP DOMAINS</div>
+          {allGroupAvgs.slice(0, 3).map(function (g) { return <div key={g.group} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}><span style={{ fontSize: 10, color: th.t2 }}>{g.icon} {g.group}</span><span style={{ fontSize: 11, fontWeight: 700, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{g.avg}</span></div>; })}
+        </div>
+      </div>;
+      return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.3 }}>
+        <span style={{ fontSize: 18, color: th.t4 }}>◈</span>
+        <span style={{ fontSize: 10, color: th.t3, textAlign: "center", marginTop: 6 }}>Select item to inspect</span>
+      </div>;
+    }
 
     var pp = items.find(function (i) { return i.id === inspData.id; });
     if (!pp) return null;
@@ -469,7 +555,7 @@ export default function PainEngine() {
         <span style={{ fontSize: 10, fontWeight: 700, color: isPain ? th.err : th.warn, fontFamily: "monospace" }}>{isPain ? "PAIN POINT" : "CONSTRAINT"}</span>
         <PriorityBadge score={pri} th={th} />
       </div>
-      <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd, marginBottom: 4 }}>
+      <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + (view === "assessment" ? th.cyan + "40" : th.brd), marginBottom: 4 }}>
         <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>SCORING ENGINE</div>
         <div style={{ fontSize: 8, color: th.t3, marginBottom: 6, lineHeight: 1.4 }}>Scores cascade from assessment metrics. Click slider to override. RESET returns to auto.</div>
         {pp.linkedMetrics && pp.linkedMetrics.length > 0 && <div style={{ padding: "5px 6px", borderRadius: 3, background: th.cyan + "08", border: "1px solid " + th.cyan + "18", marginBottom: 8 }}>
@@ -539,7 +625,7 @@ export default function PainEngine() {
         {/* View tabs */}
         <div style={{ display: "flex", gap: 3, padding: "8px 14px", borderBottom: "1px solid " + th.brd, background: th.panel, flexWrap: "wrap" }}>
           {VIEWS.map(function (v) {
-            return <button key={v.id} onClick={function () { setView(v.id); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (view === v.id ? th.accent : th.brd), background: view === v.id ? th.accentBg : "transparent", color: view === v.id ? th.accent : th.t2, cursor: "pointer", fontSize: 11, fontWeight: view === v.id ? 600 : 400 }}>{v.label}</button>;
+            return <button key={v.id} onClick={function () { setView(v.id); setInspData(null); setEditingId(null); setInspDomain(null); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (view === v.id ? th.accent : th.brd), background: view === v.id ? th.accentBg : "transparent", color: view === v.id ? th.accent : th.t2, cursor: "pointer", fontSize: 11, fontWeight: view === v.id ? 600 : 400 }}>{v.label}</button>;
           })}
         </div>
 
@@ -594,12 +680,29 @@ export default function PainEngine() {
                 </div>
                 {group.metrics.map(function (m) {
                   var val = assessment[m.key] || 0;
+                  var affected = active.filter(function (it) { return it.linkedMetrics && it.linkedMetrics.indexOf(m.key) !== -1; });
                   return <div key={m.key} style={{ marginBottom: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
                       <div><div style={{ fontSize: 11, fontWeight: 600, color: th.t0 }}>{m.label}</div><div style={{ fontSize: 9, color: th.t3 }}>{m.desc}</div></div>
                       <span style={{ fontSize: 20, fontWeight: 900, color: val >= 7 ? th.err : val >= 4 ? th.warn : th.ok, fontFamily: "monospace" }}>{val}</span>
                     </div>
                     <Slider value={val} onChange={function (v) { updateAssessment(m.key, v); }} th={th} color={val >= 7 ? th.err : val >= 4 ? th.warn : th.ok} />
+                    {affected.length > 0 && <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
+                      <span style={{ fontSize: 7, color: th.t4, fontFamily: "monospace", alignSelf: "center" }}>DRIVES:</span>
+                      {affected.map(function (it) {
+                        var isPain = (it.itemType || "pain") === "pain";
+                        var ac = isPain ? th.err : th.warn;
+                        var pri = engine.priority(it);
+                        var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                        var isSelected = inspData && inspData.id === it.id;
+                        return <button key={it.id} onClick={function (e) { e.stopPropagation(); openEdit(it.id); }}
+                          style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 3, fontSize: 9, fontWeight: 500, cursor: "pointer", border: "1px solid " + (isSelected ? th.accent + "60" : ac + "25"), background: isSelected ? th.accent + "12" : ac + "06", color: th.t1, fontFamily: "inherit", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <span style={{ width: 5, height: 5, borderRadius: "50%", background: ac, flexShrink: 0 }} />
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{it.description ? (it.description.length > 35 ? it.description.substring(0, 35) + "…" : it.description) : "(untitled)"}</span>
+                          <span style={{ fontSize: 8, fontWeight: 800, color: priC, fontFamily: "monospace", flexShrink: 0 }}>{pri}</span>
+                        </button>;
+                      })}
+                    </div>}
                   </div>;
                 })}
               </div>;
@@ -621,6 +724,7 @@ export default function PainEngine() {
                 </div>
               </div>}
             </div>
+            <NextStep label="NEXT: VIEW DASHBOARD" targetView="dashboard" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} />
           </div>}
 
           {/* DASHBOARD */}
@@ -651,6 +755,7 @@ export default function PainEngine() {
               <div style={{ fontSize: 9, fontWeight: 700, color: th.err, fontFamily: "monospace", marginBottom: 6 }}>HIGHEST PRIORITY ITEMS</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).slice(0, 5).map(function (it) { return renderCard(it); })}</div>
             </div>
+            <NextStep label="NEXT: DRILL INTO PAINS" targetView="pains" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.err} />
           </div>}
 
           {/* PAINS */}
@@ -661,6 +766,7 @@ export default function PainEngine() {
             </div>
             {filterList(pains).sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(renderCard)}
             <AddBtn label="Add pain point" onClick={function () { addItem("pain"); }} th={th} />
+            <NextStep label="NEXT: REVIEW CONSTRAINTS" targetView="constraints" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.warn} />
           </div>}
 
           {/* CONSTRAINTS */}
@@ -671,6 +777,7 @@ export default function PainEngine() {
             </div>
             {filterList(constraints).sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(renderCard)}
             <AddBtn label="Add constraint" onClick={function () { addItem("constraint"); }} th={th} />
+            <NextStep label="NEXT: AI TRACEABILITY" targetView="aiTrace" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.purple} />
           </div>}
 
           {/* AI TRACEABILITY */}
@@ -688,6 +795,7 @@ export default function PainEngine() {
                 {aiTrace.map(function (r, i) { var pc = { critical: th.err, high: th.warn, medium: th.accent, low: th.ok }; return <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "6px 0", borderBottom: "1px solid " + th.brd, alignItems: "start" }}><span style={{ fontSize: 10, color: th.t0 }}>{r.painSummary}</span><Tag color={th.accent}>{r.gttPattern}</Tag><span style={{ fontSize: 10, color: th.t2 }}>{r.resolution}</span><Tag color={pc[r.priority] || th.t3}>{r.priority}</Tag><Tag color={th.t3}>P{r.phase}</Tag></div>; })}
               </div>}
             </div>
+            <NextStep label="NEXT: RESOLUTION PLAN" targetView="aiResolve" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.cyan} />
           </div>}
 
           {/* AI RESOLUTION */}
