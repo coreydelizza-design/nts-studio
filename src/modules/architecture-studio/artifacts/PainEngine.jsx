@@ -180,6 +180,15 @@ function AddBtn({ label, onClick, th }) {
   </button>;
 }
 
+function NextStep({ label, onClick, th, color }) {
+  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 0", marginTop: 8 }}>
+    <button onClick={onClick}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 4, border: "1px solid " + (color || th.accent) + "30", background: (color || th.accent) + "06", color: color || th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>
+      {label} <span style={{ fontSize: 14 }}>→</span>
+    </button>
+  </div>;
+}
+
 // ═══════════════════════════════════════════════════════
 // SCORING ENGINE
 // ═══════════════════════════════════════════════════════
@@ -541,18 +550,142 @@ export default function PainEngine() {
                 </div>
               </div>;
             })}
+            <NextStep label="NEXT: VIEW DASHBOARD" onClick={function () { setView("dashboard"); setExpandedId(null); }} th={th} />
           </div>}
 
-          {/* DASHBOARD — placeholder for Part 2 */}
-          {view === "dashboard" && <div style={{ padding: 20, textAlign: "center", color: th.t3 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", marginBottom: 8 }}>DASHBOARD</div>
-            <div style={{ fontSize: 11 }}>Part 2 will add the full dashboard view here.</div>
+          {/* DASHBOARD */}
+          {view === "dashboard" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {active.length === 0 && overallPain === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.accent + "05", border: "1px solid " + th.accent + "18", textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 6 }}>DASHBOARD — WAITING FOR DATA</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>Complete the assessment and capture items on the Assess & Capture tab first.</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: 300, margin: "0 auto", textAlign: "left" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (overallPain > 0 ? th.ok : th.t4), background: overallPain > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: overallPain > 0 ? th.ok : th.t4, flexShrink: 0 }}>{overallPain > 0 ? "✓" : "1"}</div>
+                  <span style={{ fontSize: 11, color: overallPain > 0 ? th.ok : th.t1 }}>Set assessment sliders</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (activePains.length > 0 ? th.ok : th.t4), background: activePains.length > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: activePains.length > 0 ? th.ok : th.t4, flexShrink: 0 }}>{activePains.length > 0 ? "✓" : "2"}</div>
+                  <span style={{ fontSize: 11, color: activePains.length > 0 ? th.ok : th.t1 }}>Capture pain points</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (activeConstraints.length > 0 ? th.ok : th.t4), background: activeConstraints.length > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: activeConstraints.length > 0 ? th.ok : th.t4, flexShrink: 0 }}>{activeConstraints.length > 0 ? "✓" : "3"}</div>
+                  <span style={{ fontSize: 11, color: activeConstraints.length > 0 ? th.ok : th.t1 }}>Capture constraints</span>
+                </div>
+              </div>
+            </div>}
+            {(active.length > 0 || overallPain > 0) && <><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {[
+                { l: "Pain Intensity", v: overallPain, c: overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok },
+                { l: "Pain Points", v: activePains.length, c: th.err },
+                { l: "Constraints", v: activeConstraints.length, c: th.warn },
+                { l: "Critical (80+)", v: active.filter(function (i) { return engine.priority(i) >= 80; }).length, c: th.err },
+                { l: "Open", v: active.filter(function (i) { return i.status === "open"; }).length, c: th.err },
+              ].map(function (s) { return <div key={s.l} style={{ padding: "6px 12px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd, minWidth: 90, textAlign: "center" }}><div style={{ fontSize: 18, fontWeight: 800, color: s.c, fontFamily: "monospace" }}>{s.v}</div><div style={{ fontSize: 7, color: th.t3, fontFamily: "monospace", letterSpacing: 0.5 }}>{s.l.toUpperCase()}</div></div>; })}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAINS BY SEVERITY</div>
+                {groupAvgs.map(function (g) { return <div key={g.group} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}><span style={{ fontSize: 12 }}>{g.icon}</span><span style={{ width: 70, fontSize: 10, color: th.t2 }}>{g.group}</span><div style={{ flex: 1 }}><BarFill value={g.avg} color={g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : g.avg > 0 ? th.ok : th.t4} th={th} height={6} /></div><span style={{ fontSize: 11, fontWeight: 700, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : g.avg > 0 ? th.ok : th.t4, fontFamily: "monospace", width: 20, textAlign: "right" }}>{g.avg}</span></div>; })}
+              </div>
+              <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>PRIORITY BANDS</div>
+                {[{ l: "CRITICAL", mn: 80, c: th.err }, { l: "HIGH", mn: 60, c: th.warn }, { l: "MEDIUM", mn: 40, c: th.accent }, { l: "LOW", mn: 0, c: th.ok }].map(function (b) {
+                  var cnt = active.filter(function (i) { var p = engine.priority(i); return b.mn === 0 ? p < 40 : b.mn === 40 ? p >= 40 && p < 60 : b.mn === 60 ? p >= 60 && p < 80 : p >= 80; }).length;
+                  return <div key={b.l} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}><Tag color={b.c}>{b.l}</Tag><div style={{ flex: 1 }}><BarFill value={active.length > 0 ? (cnt / active.length) * 100 : 0} color={b.c} th={th} height={6} /></div><span style={{ fontSize: 13, fontWeight: 700, color: b.c, fontFamily: "monospace", width: 16, textAlign: "right" }}>{cnt}</span></div>;
+                })}
+              </div>
+            </div>
+            {active.length > 0 && <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>ALL ITEMS BY PRIORITY</div>
+              {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                var isPain = (item.itemType || "pain") === "pain";
+                var ac = isPain ? th.err : th.warn;
+                var pri = engine.priority(item);
+                var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                var sc = engine.scores(item);
+                return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 4, cursor: "pointer", borderBottom: "1px solid " + th.brd + "80" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: ac, flexShrink: 0 }} />
+                  <Tag color={ac} style={{ flexShrink: 0 }}>{isPain ? "PAIN" : "CNST"}</Tag>
+                  <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {item.description || "(untitled)"}
+                  </span>
+                  <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace", flexShrink: 0 }}>{item.domain || item.category}</span>
+                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <div style={{ textAlign: "center" }}><div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>IMP</div><div style={{ fontSize: 10, fontWeight: 700, color: sc.impact >= 7 ? th.err : sc.impact >= 4 ? th.warn : th.ok, fontFamily: "monospace" }}>{sc.impact}</div></div>
+                    <div style={{ textAlign: "center" }}><div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>URG</div><div style={{ fontSize: 10, fontWeight: 700, color: sc.urgency >= 7 ? th.err : sc.urgency >= 4 ? th.warn : th.ok, fontFamily: "monospace" }}>{sc.urgency}</div></div>
+                    <div style={{ textAlign: "center" }}><div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>EFF</div><div style={{ fontSize: 10, fontWeight: 700, color: sc.effort >= 7 ? th.ok : sc.effort >= 4 ? th.warn : th.err, fontFamily: "monospace" }}>{sc.effort}</div></div>
+                  </div>
+                  <div style={{ width: 30, height: 24, borderRadius: 4, background: priC + "18", border: "1px solid " + priC + "35", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ fontSize: 12, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</span>
+                  </div>
+                </div>;
+              })}
+              <div style={{ fontSize: 9, color: th.t4, textAlign: "center", padding: "8px 0 2px", fontFamily: "monospace" }}>Click any row to navigate to its domain and edit</div>
+            </div>}</>}
+            <NextStep label="NEXT: AI ANALYSIS" onClick={function () { setView("ai"); setExpandedId(null); }} th={th} color={th.purple} />
           </div>}
 
-          {/* AI ANALYSIS — placeholder for Part 2 */}
-          {view === "ai" && <div style={{ padding: 20, textAlign: "center", color: th.t3 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", marginBottom: 8 }}>AI ANALYSIS</div>
-            <div style={{ fontSize: 11 }}>Part 2 will add traceability + resolution plan here.</div>
+          {/* AI ANALYSIS */}
+          {view === "ai" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>READINESS:</span>
+              <Tag color={overallPain > 0 ? th.ok : th.t4}>{overallPain > 0 ? "✓" : "—"} ASSESSMENT</Tag>
+              <Tag color={activePains.length > 0 ? th.ok : th.t4}>{activePains.length > 0 ? "✓" : "—"} {activePains.length} PAINS</Tag>
+              <Tag color={activeConstraints.length > 0 ? th.ok : th.t4}>{activeConstraints.length > 0 ? "✓" : "—"} {activeConstraints.length} CONSTRAINTS</Tag>
+              <Tag color={active.length > 0 && overallPain > 0 ? th.ok : th.t4}>{active.length > 0 && overallPain > 0 ? "READY" : "NOT READY"}</Tag>
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button onClick={function () { setAiSubTab("trace"); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (aiSubTab === "trace" ? th.purple : th.brd), background: aiSubTab === "trace" ? th.purple + "10" : "transparent", color: aiSubTab === "trace" ? th.purple : th.t2, cursor: "pointer", fontSize: 11, fontWeight: aiSubTab === "trace" ? 600 : 400 }}>Traceability Matrix</button>
+              <button onClick={function () { setAiSubTab("resolve"); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (aiSubTab === "resolve" ? th.cyan : th.brd), background: aiSubTab === "resolve" ? th.cyan + "10" : "transparent", color: aiSubTab === "resolve" ? th.cyan : th.t2, cursor: "pointer", fontSize: 11, fontWeight: aiSubTab === "resolve" ? 600 : 400 }}>Resolution Plan</button>
+            </div>
+            {(active.length === 0 || overallPain === 0) && <div style={{ padding: 20, borderRadius: 6, textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 6 }}>COMPLETE ASSESSMENT FIRST</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto" }}>The AI needs assessment scores and at least one pain point or constraint to generate analysis. Go to the Assess & Capture tab to add data.</div>
+              <div style={{ marginTop: 10 }}>
+                <button onClick={function () { setView("assess"); }} style={{ padding: "6px 14px", borderRadius: 4, border: "1px solid " + th.accent + "30", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>Go to Assess & Capture →</button>
+              </div>
+            </div>}
+            {aiSubTab === "trace" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: th.purple, fontFamily: "monospace" }}>AI-DRIVEN TRACEABILITY MATRIX</span>
+                <button onClick={runAiTrace} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
+              </div>
+              <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Sends assessment ({overallPain}/100), {activePains.length} pains, {activeConstraints.length} constraints to AI for GTT solution mapping.</div>
+                {!aiTrace && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Traceability" to map {active.length} items to GTT solutions</div>}
+                {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.accent, fontSize: 11 }}>Analyzing and mapping to GTT solutions...</div>}
+                {aiTrace && <div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "4px 0", borderBottom: "1px solid " + th.brd, marginBottom: 4 }}>{["ISSUE", "GTT PATTERN", "RESOLUTION", "PRIORITY", "PH"].map(function (h) { return <span key={h} style={{ fontSize: 7, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>{h}</span>; })}</div>
+                  {aiTrace.map(function (r, i) { var pc = { critical: th.err, high: th.warn, medium: th.accent, low: th.ok }; return <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "6px 0", borderBottom: "1px solid " + th.brd, alignItems: "start" }}><span style={{ fontSize: 10, color: th.t0 }}>{r.painSummary}</span><Tag color={th.accent}>{r.gttPattern}</Tag><span style={{ fontSize: 10, color: th.t2 }}>{r.resolution}</span><Tag color={pc[r.priority] || th.t3}>{r.priority}</Tag><Tag color={th.t3}>P{r.phase}</Tag></div>; })}
+                </div>}
+              </div>
+            </div>}
+            {aiSubTab === "resolve" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: th.cyan, fontFamily: "monospace" }}>AI-DRIVEN RESOLUTION PLAN</span>
+                <button onClick={runAiResolve} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
+              </div>
+              <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Generates phased plan with GTT products addressing pain intensity of {overallPain}/100 across {active.length} issues.</div>
+                {!aiResolution && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Resolution Plan" to create phased roadmap for {active.length} issues</div>}
+                {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.cyan, fontSize: 11 }}>Building phased resolution plan...</div>}
+                {aiResolution && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {aiResolution.quickWins && aiResolution.quickWins.length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.ok + "08", border: "1px solid " + th.ok + "22" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 4 }}>QUICK WINS</div>
+                    {aiResolution.quickWins.map(function (q, i) { return <div key={i} style={{ fontSize: 10, color: th.t0, padding: "2px 0" }}>✓ {q}</div>; })}
+                  </div>}
+                  {(aiResolution.phases || []).map(function (ph) { var pc = [th.accent, th.purple, th.ok]; return <div key={ph.phase} style={{ padding: 12, borderRadius: 5, background: (pc[ph.phase - 1] || th.t3) + "05", border: "1px solid " + (pc[ph.phase - 1] || th.t3) + "20" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><Tag color={pc[ph.phase - 1] || th.t3}>PHASE {ph.phase}</Tag><span style={{ fontSize: 12, fontWeight: 700, color: th.t0 }}>{ph.title}</span><span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>{ph.duration}</span></div>
+                    {(ph.actions || []).map(function (a, ai) { return <div key={ai} style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 1fr", gap: 6, padding: "6px 0", borderTop: ai > 0 ? "1px solid " + th.brd : "none" }}><span style={{ fontSize: 10, color: th.t0 }}>{a.action}</span><Tag color={th.accent}>{a.gttProduct}</Tag><span style={{ fontSize: 9, color: th.t2 }}>{a.painAddressed}</span><span style={{ fontSize: 9, color: th.ok }}>{a.expectedImpact}</span></div>; })}
+                  </div>; })}
+                  {aiResolution.risks && aiResolution.risks.length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.err + "06", border: "1px solid " + th.err + "20" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.err, fontFamily: "monospace", marginBottom: 4 }}>RISKS</div>
+                    {aiResolution.risks.map(function (r, i) { return <div key={i} style={{ fontSize: 10, color: th.t1, padding: "2px 0" }}>⚠ {r}</div>; })}
+                  </div>}
+                </div>}
+              </div>
+            </div>}
           </div>}
         </div>
       </div>
