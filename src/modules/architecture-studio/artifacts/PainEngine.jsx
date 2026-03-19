@@ -25,29 +25,29 @@ var LIGHT = {
 // ═══════════════════════════════════════════════════════
 var METRIC_GROUPS = [
   { group: "Reliability", icon: "⚡", metrics: [
-    { key: "outageFrequency", label: "Outage Frequency", desc: "Unplanned downtime events per quarter", initial: 8 },
-    { key: "mttr", label: "Mean Time to Resolve", desc: "Hours to restore service after incident", initial: 7 },
+    { key: "outageFrequency", label: "Outage Frequency", desc: "Unplanned downtime events per quarter", initial: 0 },
+    { key: "mttr", label: "Mean Time to Resolve", desc: "Hours to restore service after incident", initial: 0 },
   ]},
   { group: "Performance", icon: "☁", metrics: [
-    { key: "cloudAppPerformance", label: "Cloud Application Performance", desc: "Latency and throughput to SaaS/IaaS", initial: 6 },
+    { key: "cloudAppPerformance", label: "Cloud Application Performance", desc: "Latency and throughput to SaaS/IaaS", initial: 0 },
   ]},
   { group: "Security", icon: "🛡", metrics: [
-    { key: "securityFragmentation", label: "Security Tool Fragmentation", desc: "Overlapping, siloed security platforms", initial: 9 },
+    { key: "securityFragmentation", label: "Security Tool Fragmentation", desc: "Overlapping, siloed security platforms", initial: 0 },
   ]},
   { group: "Operations", icon: "🔧", metrics: [
-    { key: "carrierSprawl", label: "Carrier & Circuit Sprawl", desc: "Multi-vendor complexity and cost leakage", initial: 7 },
-    { key: "visibilityGaps", label: "Network Visibility Gaps", desc: "Blind spots in traffic and performance", initial: 5 },
-    { key: "ticketVolume", label: "Ticket Volume & Escalations", desc: "Operational overhead from manual processes", initial: 4 },
-    { key: "manualOps", label: "Manual Operations Burden", desc: "CLI-driven changes, no automation pipeline", initial: 7 },
+    { key: "carrierSprawl", label: "Carrier & Circuit Sprawl", desc: "Multi-vendor complexity and cost leakage", initial: 0 },
+    { key: "visibilityGaps", label: "Network Visibility Gaps", desc: "Blind spots in traffic and performance", initial: 0 },
+    { key: "ticketVolume", label: "Ticket Volume & Escalations", desc: "Operational overhead from manual processes", initial: 0 },
+    { key: "manualOps", label: "Manual Operations Burden", desc: "CLI-driven changes, no automation pipeline", initial: 0 },
   ]},
   { group: "Agility", icon: "🚀", metrics: [
-    { key: "siteDeployVelocity", label: "Site Deployment Velocity", desc: "Weeks/months to provision new locations", initial: 6 },
+    { key: "siteDeployVelocity", label: "Site Deployment Velocity", desc: "Weeks/months to provision new locations", initial: 0 },
   ]},
   { group: "Strategic", icon: "🏢", metrics: [
-    { key: "maIntegration", label: "M&A Integration Friction", desc: "Time and complexity to integrate acquisitions", initial: 8 },
+    { key: "maIntegration", label: "M&A Integration Friction", desc: "Time and complexity to integrate acquisitions", initial: 0 },
   ]},
   { group: "Vendor", icon: "📉", metrics: [
-    { key: "vendorSLA", label: "Vendor SLA Performance", desc: "Missed SLAs and accountability gaps", initial: 3 },
+    { key: "vendorSLA", label: "Vendor SLA Performance", desc: "Missed SLAs and accountability gaps", initial: 0 },
   ]},
 ];
 
@@ -60,21 +60,7 @@ METRIC_GROUPS.forEach(function (g) { g.metrics.forEach(function (m) { DEFAULT_AS
 // ═══════════════════════════════════════════════════════
 // INITIAL ITEMS
 // ═══════════════════════════════════════════════════════
-var INITIAL_ITEMS = [
-  { id: "pp1", itemType: "pain", category: "Cost", severity: "high", description: "Multi-vendor MPLS costs escalating 8-12% annually", sites: "All MPLS sites", impact: "Financial — $180K+ annual increase projected", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "SD-WAN", traceability: "Cost Optimization → MPLS to SD-WAN migration", linkedMetrics: ["carrierSprawl", "vendorSLA"], manualImpact: null, manualLikelihood: null, manualEffort: 6, manualUrgency: null },
-  { id: "pp2", itemType: "pain", category: "Performance", severity: "high", description: "Latency spikes on US MPLS during peak hours affecting trading apps", sites: "New York Office", impact: "Business — 15min+ delays on time-sensitive transactions", owner: "App Team", status: "open", resolution: "", targetDate: "", linkedPattern: "SD-WAN", traceability: "App Performance → SD-WAN path selection", linkedMetrics: ["cloudAppPerformance", "outageFrequency"], manualImpact: null, manualLikelihood: null, manualEffort: 4, manualUrgency: 9 },
-  { id: "pp3", itemType: "pain", category: "Performance", severity: "high", description: "Mumbai broadband unreliable — 3+ outages per month", sites: "Mumbai Branch", impact: "Operational — avg 4hr downtime/month, 120 users impacted", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "Hybrid Backbone", traceability: "Resilience → Dual underlay + failover", linkedMetrics: ["outageFrequency", "mttr"], manualImpact: null, manualLikelihood: null, manualEffort: 3, manualUrgency: null },
-  { id: "pp4", itemType: "pain", category: "Complexity", severity: "medium", description: "6 different WAN providers to manage across regions", sites: "All", impact: "Operational — 3 FTEs dedicated to vendor management", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "SD-WAN", traceability: "Operational simplification → Single provider consolidation", linkedMetrics: ["carrierSprawl", "manualOps", "ticketVolume"], manualImpact: null, manualLikelihood: null, manualEffort: 7, manualUrgency: null },
-  { id: "pp5", itemType: "pain", category: "Security", severity: "high", description: "No unified security policy enforcement across branches", sites: "All branches", impact: "Risk — inconsistent posture, audit findings", owner: "Security Team", status: "open", resolution: "", targetDate: "", linkedPattern: "SASE", traceability: "Security Posture → SASE overlay", linkedMetrics: ["securityFragmentation"], manualImpact: null, manualLikelihood: null, manualEffort: 7, manualUrgency: 9 },
-  { id: "pp6", itemType: "pain", category: "Security", severity: "medium", description: "VPN capacity insufficient for remote workforce growth (15% QoQ)", sites: "Remote Workers", impact: "Business — connection failures during peak, 350 users", owner: "Security Team", status: "open", resolution: "", targetDate: "", linkedPattern: "SASE", traceability: "Zero Trust → ZTNA replaces legacy VPN", linkedMetrics: ["securityFragmentation", "visibilityGaps"], manualImpact: null, manualLikelihood: null, manualEffort: 5, manualUrgency: null },
-  { id: "pp7", itemType: "pain", category: "Agility", severity: "medium", description: "6-12 week lead time for new MPLS circuit provisioning", sites: "All", impact: "Business — delays M&A integrations and new office openings", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "On-Demand", traceability: "Agility → On-demand provisioning", linkedMetrics: ["siteDeployVelocity", "maIntegration"], manualImpact: null, manualLikelihood: null, manualEffort: 4, manualUrgency: null },
-  { id: "pp8", itemType: "pain", category: "Cloud", severity: "high", description: "Cloud traffic backhauled through London — poor UX in APAC", sites: "Singapore, Mumbai, Tokyo, Sydney", impact: "Performance — 350ms+ round-trip for SaaS apps in APAC", owner: "Cloud Team", status: "open", resolution: "", targetDate: "", linkedPattern: "Multi-Cloud", traceability: "Cloud Migration → Local cloud on-ramp", linkedMetrics: ["cloudAppPerformance"], manualImpact: null, manualLikelihood: null, manualEffort: 5, manualUrgency: 8 },
-  { id: "pp9", itemType: "constraint", category: "Contractual", severity: "high", description: "BT MPLS contract locked until Q3 2026 with early termination penalties", sites: "London HQ, Frankfurt DC", impact: "Financial — est. £85K ETF if terminated early", owner: "Procurement", status: "open", resolution: "", targetDate: "2026-09-30", linkedPattern: "", traceability: "Migration dependency", linkedMetrics: ["carrierSprawl"], manualImpact: 8, manualLikelihood: 10, manualEffort: 2, manualUrgency: 7 },
-  { id: "pp10", itemType: "constraint", category: "Compliance", severity: "high", description: "GDPR data residency — EU traffic must not traverse non-EU nodes", sites: "All EMEA", impact: "Architecture — constrains routing topology and VDC placement", owner: "Legal / Security", status: "open", resolution: "", targetDate: "", linkedPattern: "VDC Service Zone", traceability: "Compliance → EU-resident VDC service zones", linkedMetrics: ["securityFragmentation"], manualImpact: 9, manualLikelihood: 10, manualEffort: 6, manualUrgency: 10 },
-  { id: "pp11", itemType: "constraint", category: "Operational", severity: "medium", description: "IT team headcount frozen — no additional FTEs for 12 months", sites: "All", impact: "Operational — managed service model required", owner: "CTO Office", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Governance → Fully managed or co-managed model", linkedMetrics: ["manualOps", "ticketVolume"], manualImpact: null, manualLikelihood: 10, manualEffort: 8, manualUrgency: null },
-  { id: "pp12", itemType: "constraint", category: "Vendor", severity: "medium", description: "Existing Zscaler ZIA contract — 100 licenses active", sites: "Global", impact: "Architecture — SASE vendor decision partially pre-committed", owner: "Security Team", status: "open", resolution: "", targetDate: "", linkedPattern: "SASE", traceability: "Security architecture input", linkedMetrics: ["vendorSLA"], manualImpact: 5, manualLikelihood: 10, manualEffort: 3, manualUrgency: null },
-  { id: "pp13", itemType: "constraint", category: "Governance", severity: "low", description: "Change freeze during Q4 financial close (Oct-Dec annually)", sites: "All", impact: "Timeline — no production changes for 3 months/year", owner: "Change Board", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Migration scheduling constraint", linkedMetrics: [], manualImpact: 4, manualLikelihood: 10, manualEffort: 1, manualUrgency: 3 },
-];
+var INITIAL_ITEMS = [];
 
 // ═══════════════════════════════════════════════════════
 // UI PRIMITIVES
@@ -297,9 +283,30 @@ export default function PainEngine() {
   function updateItem(id, field, val) { setItems(function (p) { return p.map(function (i) { return i.id === id ? Object.assign({}, i, { [field]: val }) : i; }); }); }
   function toggleItem(id) { var it = items.find(function (i) { return i.id === id; }); if (it) updateItem(id, "enabled", it.enabled === false); }
 
+  var DEFAULT_LINKED_METRICS = {
+    "Cost": ["carrierSprawl", "vendorSLA"],
+    "Performance": ["cloudAppPerformance", "outageFrequency"],
+    "Complexity": ["carrierSprawl", "manualOps", "ticketVolume"],
+    "Security": ["securityFragmentation", "visibilityGaps"],
+    "Agility": ["siteDeployVelocity", "maIntegration"],
+    "Cloud": ["cloudAppPerformance"],
+    "Compliance": ["securityFragmentation"],
+    "Contractual": ["carrierSprawl"],
+    "Operational": ["manualOps", "ticketVolume"],
+    "Vendor": ["vendorSLA"],
+    "Governance": []
+  };
+
   function addItem(type) {
     var nid = "pp" + Date.now();
-    setItems(function (p) { return p.concat([{ id: nid, itemType: type, category: "Cost", severity: "medium", description: "", sites: "", impact: "", owner: "", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "", linkedMetrics: [], manualImpact: 5, manualLikelihood: 5, manualEffort: 5, manualUrgency: 5 }]); });
+    var cat = type === "constraint" ? "Contractual" : "Cost";
+    setItems(function (p) { return p.concat([{
+      id: nid, itemType: type, category: cat, severity: "medium",
+      description: "", sites: "", impact: "", owner: "", status: "open",
+      resolution: "", targetDate: "", linkedPattern: "", traceability: "",
+      linkedMetrics: DEFAULT_LINKED_METRICS[cat] || [],
+      manualImpact: null, manualLikelihood: null, manualEffort: 5, manualUrgency: null
+    }]); });
     openEdit(nid);
   }
 
@@ -450,7 +457,7 @@ export default function PainEngine() {
     if (!inspData) {
       if (view === "assessment") return <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5 }}>ASSESSMENT OVERVIEW</div>
-        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>Adjust sliders on the left. Click any affected item chip below a slider to inspect its cascading scores here.</div>
+        <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.4 }}>{active.length === 0 ? "Move the sliders on the left. Scores here will update as you add items and link them to metrics." : "Adjust sliders on the left. Click any affected item chip below a slider to inspect its cascading scores here."}</div>
         <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>DOMAIN SUMMARY</div>
           {allGroupAvgs.map(function (g) {
@@ -576,7 +583,7 @@ export default function PainEngine() {
         <div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace", marginTop: 2 }}>(imp×.35 + lik×.25 + urg×.25 + ease×.15) × 10</div>
       </div>
       <EditField label="Type" value={pp.itemType || "pain"} onChange={function(v){updateItem(pp.id,"itemType",v)}} th={th} type="select" options={["pain","constraint"]} />
-      <EditField label="Category" value={pp.category} onChange={function(v){updateItem(pp.id,"category",v)}} th={th} type="select" options={["Cost","Performance","Complexity","Security","Agility","Cloud","Compliance","Contractual","Operational","Vendor","Governance"]} />
+      <EditField label="Category" value={pp.category} onChange={function(v){ updateItem(pp.id, "category", v); updateItem(pp.id, "linkedMetrics", DEFAULT_LINKED_METRICS[v] || []); }} th={th} type="select" options={["Cost","Performance","Complexity","Security","Agility","Cloud","Compliance","Contractual","Operational","Vendor","Governance"]} />
       <EditField label="Severity" value={pp.severity} onChange={function(v){updateItem(pp.id,"severity",v)}} th={th} type="select" options={["high","medium","low"]} />
       <EditField label="Status" value={pp.status} onChange={function(v){updateItem(pp.id,"status",v)}} th={th} type="select" options={["open","mitigated","resolved","accepted"]} />
       <EditField label="Description" value={pp.description} onChange={function(v){updateItem(pp.id,"description",v)}} th={th} type="textarea" placeholder="Describe the issue..." />
@@ -632,6 +639,24 @@ export default function PainEngine() {
         <div style={{ flex: 1, padding: 14, overflowY: "auto" }}>
           {/* ASSESSMENT */}
           {view === "assessment" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {active.length === 0 && <div style={{ padding: 14, borderRadius: 6, background: th.accent + "06", border: "1px solid " + th.accent + "20" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 6, letterSpacing: 0.5 }}>STEP 1 — ASSESS THE CUSTOMER'S NETWORK</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, marginBottom: 10 }}>Walk through each domain with the customer. Move sliders based on what they tell you — 0 means "no issue" and 10 means "severe." Start with the domain they mention first. The Pain Intensity score will build as you go.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>ASK</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>"Where does your network hurt the most right now?"</div>
+                </div>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>SCORE</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Move sliders collaboratively — let the customer see and validate</div>
+                </div>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>THEN</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Move to Pains tab to capture specific issues as they emerge</div>
+                </div>
+              </div>
+            </div>}
             {showAssessmentBanner && <div style={{ position: "relative", padding: 14, borderRadius: 6, background: th.accent + "06", border: "1px solid " + th.accent + "20" }}>
               <button onClick={function () { setShowAssessmentBanner(false); }} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", cursor: "pointer", fontSize: 12, color: th.t3, padding: 4 }}>✕</button>
               <div style={{ fontSize: 13, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5, marginBottom: 6 }}>NETWORK PAIN ASSESSMENT</div>
@@ -724,12 +749,30 @@ export default function PainEngine() {
                 </div>
               </div>}
             </div>
-            <NextStep label="NEXT: VIEW DASHBOARD" targetView="dashboard" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} />
+            <NextStep label="NEXT: CAPTURE PAIN POINTS" targetView="pains" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.err} />
           </div>}
 
           {/* DASHBOARD */}
           {view === "dashboard" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {active.length === 0 && overallPain === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.accent + "05", border: "1px solid " + th.accent + "18", textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 6 }}>DASHBOARD — WAITING FOR DATA</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>This view summarizes your assessment results. Complete these steps first:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: 300, margin: "0 auto", textAlign: "left" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (overallPain > 0 ? th.ok : th.t4), background: overallPain > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: overallPain > 0 ? th.ok : th.t4, flexShrink: 0 }}>{overallPain > 0 ? "✓" : "1"}</div>
+                  <span style={{ fontSize: 11, color: overallPain > 0 ? th.ok : th.t1 }}>Set assessment sliders (Assessment tab)</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (activePains.length > 0 ? th.ok : th.t4), background: activePains.length > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: activePains.length > 0 ? th.ok : th.t4, flexShrink: 0 }}>{activePains.length > 0 ? "✓" : "2"}</div>
+                  <span style={{ fontSize: 11, color: activePains.length > 0 ? th.ok : th.t1 }}>Add pain points (Pains tab)</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (activeConstraints.length > 0 ? th.ok : th.t4), background: activeConstraints.length > 0 ? th.ok + "15" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: activeConstraints.length > 0 ? th.ok : th.t4, flexShrink: 0 }}>{activeConstraints.length > 0 ? "✓" : "3"}</div>
+                  <span style={{ fontSize: 11, color: activeConstraints.length > 0 ? th.ok : th.t1 }}>Add constraints (Constraints tab)</span>
+                </div>
+              </div>
+            </div>}
+            {(active.length > 0 || overallPain > 0) && <><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[
                 { l: "Pain Intensity", v: overallPain, c: overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok },
                 { l: "Pain Points", v: activePains.length, c: th.err },
@@ -754,41 +797,72 @@ export default function PainEngine() {
             <div style={{ padding: 12, borderRadius: 5, background: th.err + "05", border: "1px solid " + th.err + "20" }}>
               <div style={{ fontSize: 9, fontWeight: 700, color: th.err, fontFamily: "monospace", marginBottom: 6 }}>HIGHEST PRIORITY ITEMS</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>{active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).slice(0, 5).map(function (it) { return renderCard(it); })}</div>
-            </div>
+            </div></>}
             <NextStep label="NEXT: DRILL INTO PAINS" targetView="pains" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.err} />
           </div>}
 
           {/* PAINS */}
           {view === "pains" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+            {pains.length === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.err + "05", border: "1px solid " + th.err + "18", textAlign: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.err, fontFamily: "monospace", marginBottom: 6 }}>STEP 2 — CAPTURE PAIN POINTS</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>As the customer describes their network problems, add each one here. The scoring engine will automatically prioritize them based on your assessment sliders.</div>
+              <button onClick={function () { addItem("pain"); }} style={{ padding: "8px 20px", borderRadius: 4, border: "1px solid " + th.err + "50", background: th.err + "12", color: th.err, cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "monospace" }}>+ ADD FIRST PAIN POINT</button>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 12 }}>
+                {["Cost pressure", "Performance issues", "Security gaps", "Operational complexity"].map(function (ex) {
+                  return <span key={ex} style={{ fontSize: 9, color: th.t3, padding: "3px 8px", borderRadius: 3, background: th.inset, border: "1px solid " + th.brd }}>{ex}</span>;
+                })}
+              </div>
+              <div style={{ fontSize: 9, color: th.t4, marginTop: 6 }}>Common pain categories — items will auto-link to your assessment sliders</div>
+            </div>}
+            {pains.length > 0 && <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
               <select value={filterSev} onChange={function (e) { setFilterSev(e.target.value); }} style={{ padding: "3px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 10 }}><option value="all">All Severities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
               <select value={filterCat} onChange={function (e) { setFilterCat(e.target.value); }} style={{ padding: "3px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 10 }}><option value="all">All Categories</option>{catKeys.map(function (c) { return <option key={c} value={c}>{c}</option>; })}</select>
-            </div>
+            </div>}
             {filterList(pains).sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(renderCard)}
-            <AddBtn label="Add pain point" onClick={function () { addItem("pain"); }} th={th} />
+            {pains.length > 0 && <AddBtn label="Add pain point" onClick={function () { addItem("pain"); }} th={th} />}
             <NextStep label="NEXT: REVIEW CONSTRAINTS" targetView="constraints" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.warn} />
           </div>}
 
           {/* CONSTRAINTS */}
           {view === "constraints" && <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+            {constraints.length === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.warn + "05", border: "1px solid " + th.warn + "18", textAlign: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.warn, fontFamily: "monospace", marginBottom: 6 }}>STEP 3 — CAPTURE CONSTRAINTS</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>Constraints are things the customer can't change — contracts, compliance rules, resource limits, governance policies. These shape what solutions are possible.</div>
+              <button onClick={function () { addItem("constraint"); }} style={{ padding: "8px 20px", borderRadius: 4, border: "1px solid " + th.warn + "50", background: th.warn + "12", color: th.warn, cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "monospace" }}>+ ADD FIRST CONSTRAINT</button>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 12 }}>
+                {["Contract lock-in", "Compliance / GDPR", "Headcount freeze", "Vendor commitment"].map(function (ex) {
+                  return <span key={ex} style={{ fontSize: 9, color: th.t3, padding: "3px 8px", borderRadius: 3, background: th.inset, border: "1px solid " + th.brd }}>{ex}</span>;
+                })}
+              </div>
+              <div style={{ fontSize: 9, color: th.t4, marginTop: 6 }}>Common constraint types — "what can't we change?"</div>
+            </div>}
+            {constraints.length > 0 && <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
               <select value={filterSev} onChange={function (e) { setFilterSev(e.target.value); }} style={{ padding: "3px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 10 }}><option value="all">All Severities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
               <select value={filterCat} onChange={function (e) { setFilterCat(e.target.value); }} style={{ padding: "3px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 10 }}><option value="all">All Categories</option>{catKeys.map(function (c) { return <option key={c} value={c}>{c}</option>; })}</select>
-            </div>
+            </div>}
             {filterList(constraints).sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(renderCard)}
-            <AddBtn label="Add constraint" onClick={function () { addItem("constraint"); }} th={th} />
-            <NextStep label="NEXT: AI TRACEABILITY" targetView="aiTrace" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.purple} />
+            {constraints.length > 0 && <AddBtn label="Add constraint" onClick={function () { addItem("constraint"); }} th={th} />}
+            <NextStep label="NEXT: AI SOLUTION MAPPING" targetView="aiTrace" setView={setView} setInspData={setInspData} setEditingId={setEditingId} setInspDomain={setInspDomain} th={th} color={th.purple} />
           </div>}
 
           {/* AI TRACEABILITY */}
           {view === "aiTrace" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontSize: 9, fontWeight: 700, color: th.purple, fontFamily: "monospace" }}>AI-DRIVEN TRACEABILITY MATRIX</span>
-              <button onClick={runAiTrace} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
+              <button onClick={runAiTrace} disabled={aiLoading || active.length === 0} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
             </div>
             <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
               <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Sends assessment ({overallPain}/100), {activePains.length} pains, {activeConstraints.length} constraints to AI for GTT solution mapping.</div>
-              {!aiTrace && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Click "Generate Traceability" to run AI analysis</div>}
+              {!aiTrace && !aiLoading && active.length === 0 && <div style={{ padding: 20, textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 6 }}>STEP 4 — AI SOLUTION MAPPING</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto" }}>The AI will map your pain points and constraints to GTT solution patterns. Complete these steps first:</div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 10 }}>
+                <Tag color={overallPain > 0 ? th.ok : th.t4}>{overallPain > 0 ? "✓" : "—"} ASSESSMENT</Tag>
+                <Tag color={activePains.length > 0 ? th.ok : th.t4}>{activePains.length > 0 ? "✓" : "—"} PAINS</Tag>
+                <Tag color={activeConstraints.length > 0 ? th.ok : th.t4}>{activeConstraints.length > 0 ? "✓" : "—"} CONSTRAINTS</Tag>
+              </div>
+            </div>}
+            {!aiTrace && !aiLoading && active.length > 0 && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Traceability" to map {active.length} items to GTT solutions</div>}
               {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.accent, fontSize: 11 }}>Analyzing and mapping to GTT solutions...</div>}
               {aiTrace && <div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "4px 0", borderBottom: "1px solid " + th.brd, marginBottom: 4 }}>{["ISSUE", "GTT PATTERN", "RESOLUTION", "PRIORITY", "PH"].map(function (h) { return <span key={h} style={{ fontSize: 7, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>{h}</span>; })}</div>
@@ -802,11 +876,20 @@ export default function PainEngine() {
           {view === "aiResolve" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontSize: 9, fontWeight: 700, color: th.cyan, fontFamily: "monospace" }}>AI-DRIVEN RESOLUTION PLAN</span>
-              <button onClick={runAiResolve} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
+              <button onClick={runAiResolve} disabled={aiLoading || active.length === 0} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
             </div>
             <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
               <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Generates phased plan with GTT products addressing pain intensity of {overallPain}/100 across {active.length} issues.</div>
-              {!aiResolution && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Click "Generate Resolution Plan" to run AI analysis</div>}
+              {!aiResolution && !aiLoading && active.length === 0 && <div style={{ padding: 20, textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.cyan, fontFamily: "monospace", marginBottom: 6 }}>STEP 5 — AI RESOLUTION PLAN</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto" }}>The AI will build a phased implementation plan with GTT products. Complete the earlier steps first.</div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 10 }}>
+                <Tag color={overallPain > 0 ? th.ok : th.t4}>{overallPain > 0 ? "✓" : "—"} ASSESSMENT</Tag>
+                <Tag color={activePains.length > 0 ? th.ok : th.t4}>{activePains.length > 0 ? "✓" : "—"} PAINS</Tag>
+                <Tag color={activeConstraints.length > 0 ? th.ok : th.t4}>{activeConstraints.length > 0 ? "✓" : "—"} CONSTRAINTS</Tag>
+              </div>
+            </div>}
+            {!aiResolution && !aiLoading && active.length > 0 && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Resolution Plan" to create phased roadmap for {active.length} issues</div>}
               {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.cyan, fontSize: 11 }}>Building phased resolution plan...</div>}
               {aiResolution && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aiResolution.quickWins && aiResolution.quickWins.length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.ok + "08", border: "1px solid " + th.ok + "22" }}>
