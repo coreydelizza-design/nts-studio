@@ -214,6 +214,15 @@ export default function PainEngine() {
   var [aiResolution, setAiResolution] = useState(null);
   var [aiLoading, setAiLoading] = useState(false);
   var [showAssessmentBanner, setShowAssessmentBanner] = useState(true);
+  var [domainNotes, setDomainNotes] = useState({});
+  var [domainOverrides, setDomainOverrides] = useState({});
+  var [inspDomain, setInspDomain] = useState(null);
+  var [customDomains, setCustomDomains] = useState([]);
+  var [showAddDomain, setShowAddDomain] = useState(false);
+  var [newDomainName, setNewDomainName] = useState("");
+  var [newDomainIcon, setNewDomainIcon] = useState("📋");
+  var [newDomainMetricLabel, setNewDomainMetricLabel] = useState("");
+  var [newDomainMetricDesc, setNewDomainMetricDesc] = useState("");
 
   var engine = useMemo(function () { return createEngine(assessment); }, [assessment]);
 
@@ -233,6 +242,44 @@ export default function PainEngine() {
     return { group: g.group, icon: g.icon, avg: vals.length > 0 ? Math.round(vals.reduce(function (a, v) { return a + v; }, 0) / vals.length * 10) : 0 };
   }).sort(function (a, b) { return b.avg - a.avg; });
 
+  var allGroups = METRIC_GROUPS.concat(customDomains);
+  var allGroupAvgs = allGroups.map(function (g) {
+    var vals = g.metrics.map(function (m) { return assessment[m.key] || 0; });
+    return { group: g.group, icon: g.icon, avg: vals.length > 0 ? Math.round(vals.reduce(function (a, v) { return a + v; }, 0) / vals.length * 10) : 0 };
+  }).sort(function (a, b) { return b.avg - a.avg; });
+
+  function updateDomainNote(domain, text) {
+    setDomainNotes(function (p) { var n = Object.assign({}, p); n[domain] = text; return n; });
+  }
+  function updateDomainOverride(domain, field, val) {
+    setDomainOverrides(function (p) {
+      var n = Object.assign({}, p);
+      n[domain] = Object.assign({}, n[domain] || {}, { [field]: val });
+      return n;
+    });
+  }
+  function openDomainInspector(groupName) {
+    setInspDomain(groupName);
+    setInspData(null);
+    setEditingId(null);
+  }
+  function addCustomDomain() {
+    if (!newDomainName.trim() || !newDomainMetricLabel.trim()) return;
+    var metricKey = "custom_" + Date.now();
+    var newGroup = {
+      group: newDomainName.trim(),
+      icon: newDomainIcon || "📋",
+      metrics: [{ key: metricKey, label: newDomainMetricLabel.trim(), desc: newDomainMetricDesc.trim() || "Custom metric", initial: 5 }]
+    };
+    setCustomDomains(function (p) { return p.concat([newGroup]); });
+    setAssessment(function (p) { var n = Object.assign({}, p); n[metricKey] = 5; return n; });
+    setNewDomainName("");
+    setNewDomainIcon("📋");
+    setNewDomainMetricLabel("");
+    setNewDomainMetricDesc("");
+    setShowAddDomain(false);
+  }
+
   var allCats = {};
   active.forEach(function (i) { allCats[i.category] = (allCats[i.category] || 0) + 1; });
   var catKeys = Object.keys(allCats).sort(function (a, b) { return allCats[b] - allCats[a]; });
@@ -250,6 +297,7 @@ export default function PainEngine() {
   function openEdit(id) {
     setEditingId(id);
     setInspData({ id: id });
+    setInspDomain(null);
   }
 
   function filterList(list) {
@@ -327,6 +375,69 @@ export default function PainEngine() {
 
   // Inspector
   function renderInspector() {
+    // DOMAIN INSPECTOR
+    if (inspDomain) {
+      var dg = allGroups.find(function (g) { return g.group === inspDomain; });
+      if (!dg) return null;
+      var dOverrides = domainOverrides[inspDomain] || {};
+      var dNote = domainNotes[inspDomain] || "";
+      var isCustom = customDomains.some(function (cd) { return cd.group === inspDomain; });
+      return <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 16 }}>{dg.icon}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace" }}>{inspDomain.toUpperCase()}</span>
+          </div>
+          {isCustom && <Tag color={th.purple}>CUSTOM</Tag>}
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd, marginBottom: 4 }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>DOMAIN METRICS</div>
+          {dg.metrics.map(function (m) {
+            var val = assessment[m.key] || 0;
+            var ov = dOverrides[m.key];
+            var displayVal = ov != null ? ov : val;
+            var isOverridden = ov != null;
+            return <div key={m.key} style={{ marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: 9, fontWeight: 600, color: th.t2 }}>{m.label}</span>
+                  <span style={{ fontSize: 7, padding: "0 4px", borderRadius: 2, fontFamily: "monospace", fontWeight: 600, background: isOverridden ? th.warn + "20" : th.cyan + "20", color: isOverridden ? th.warn : th.cyan }}>{isOverridden ? "OVERRIDE" : "ASSESSMENT"}</span>
+                </div>
+                {isOverridden && <button onClick={function () { updateDomainOverride(inspDomain, m.key, null); updateAssessment(m.key, val); }} style={{ fontSize: 7, padding: "1px 5px", borderRadius: 2, border: "1px solid " + th.cyan + "40", background: th.cyan + "10", color: th.cyan, cursor: "pointer", fontFamily: "monospace", fontWeight: 600 }}>RESET</button>}
+              </div>
+              <Slider value={isOverridden ? ov : val} onChange={function (v) { updateDomainOverride(inspDomain, m.key, v); updateAssessment(m.key, v); }} th={th} color={displayVal >= 7 ? th.err : displayVal >= 4 ? th.warn : th.ok} showTicks={false} />
+            </div>;
+          })}
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd, marginBottom: 4 }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>DOMAIN NOTES</div>
+          <textarea value={dNote} onChange={function (e) { updateDomainNote(inspDomain, e.target.value); }} placeholder={"Notes for " + inspDomain + " domain..."} style={{ width: "100%", minHeight: 60, padding: "6px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 11, fontFamily: "inherit", resize: "vertical", outline: "none" }} />
+        </div>
+        <div style={{ padding: 8, borderRadius: 4, background: th.inset, border: "1px solid " + th.brd }}>
+          <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>LINKED PAIN POINTS</div>
+          {(function () {
+            var linked = items.filter(function (i) { return i.enabled !== false && i.linkedMetrics && i.linkedMetrics.some(function (lm) { return dg.metrics.some(function (dm) { return dm.key === lm; }); }); });
+            if (linked.length === 0) return <div style={{ fontSize: 9, color: th.t4, fontStyle: "italic" }}>No pain points linked to this domain</div>;
+            return linked.map(function (i) {
+              var pri = engine.priority(i);
+              return <div key={i.id} onClick={function () { openEdit(i.id); }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 6px", borderRadius: 3, cursor: "pointer", marginBottom: 2, background: th.card, border: "1px solid " + th.brd }}>
+                <span style={{ fontSize: 9, color: th.t1, flex: 1 }}>{i.description ? i.description.slice(0, 30) : i.id}</span>
+                <PriorityBadge score={pri} th={th} />
+              </div>;
+            });
+          })()}
+        </div>
+        {isCustom && <button onClick={function () {
+          var keysToRemove = dg.metrics.map(function (m) { return m.key; });
+          setCustomDomains(function (p) { return p.filter(function (cd) { return cd.group !== inspDomain; }); });
+          setAssessment(function (p) { var n = Object.assign({}, p); keysToRemove.forEach(function (k) { delete n[k]; }); return n; });
+          setDomainNotes(function (p) { var n = Object.assign({}, p); delete n[inspDomain]; return n; });
+          setDomainOverrides(function (p) { var n = Object.assign({}, p); delete n[inspDomain]; return n; });
+          setInspDomain(null);
+        }} style={{ marginTop: 6, padding: "6px 10px", borderRadius: 4, border: "1px solid " + th.err + "40", background: th.err + "08", color: th.err, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace", width: "100%" }}>REMOVE CUSTOM DOMAIN</button>}
+      </div>;
+    }
+
     if (!inspData) return <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.3 }}>
       <span style={{ fontSize: 18, color: th.t4 }}>◈</span>
       <span style={{ fontSize: 10, color: th.t3, textAlign: "center", marginTop: 6 }}>Select item to inspect</span>
@@ -463,17 +574,18 @@ export default function PainEngine() {
               <div style={{ flex: 1, padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAIN HEAT MAP</div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {groupAvgs.map(function (g) {
-                    return <div key={g.group} style={{ flex: "1 1 80px", padding: "8px 10px", borderRadius: 4, background: (g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok) + "08", textAlign: "center" }}>
+                  {allGroupAvgs.map(function (g) {
+                    return <div key={g.group} onClick={function () { openDomainInspector(g.group); }} style={{ flex: "1 1 80px", padding: "8px 10px", borderRadius: 4, background: (g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok) + "08", textAlign: "center", cursor: "pointer", border: inspDomain === g.group ? "1px solid " + th.accent : "1px solid transparent", transition: "border 0.2s" }}>
                       <div style={{ fontSize: 14 }}>{g.icon}</div>
                       <div style={{ fontSize: 18, fontWeight: 900, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok, fontFamily: "monospace" }}>{g.avg}</div>
                       <div style={{ fontSize: 8, fontWeight: 600, color: th.t2 }}>{g.group}</div>
+                      {domainNotes[g.group] && <div style={{ fontSize: 7, color: th.accent, fontFamily: "monospace", marginTop: 2 }}>HAS NOTES</div>}
                     </div>;
                   })}
                 </div>
               </div>
             </div>
-            {METRIC_GROUPS.map(function (group) {
+            {allGroups.map(function (group) {
               return <div key={group.group} style={{ padding: 14, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                   <span style={{ fontSize: 16 }}>{group.icon}</span>
@@ -491,6 +603,23 @@ export default function PainEngine() {
                 })}
               </div>;
             })}
+            <div style={{ padding: 14, borderRadius: 5, background: th.card, border: "1px dashed " + th.accent + "40" }}>
+              {!showAddDomain ? <button onClick={function () { setShowAddDomain(true); }} style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "8px 12px", borderRadius: 4, border: "1px dashed " + th.accent + "50", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 11, fontWeight: 600 }}><span style={{ fontSize: 16, lineHeight: "16px" }}>+</span> Add Custom Domain</button>
+              : <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: th.accent, fontFamily: "monospace" }}>NEW CUSTOM DOMAIN</div>
+                <div style={{ fontSize: 9, color: th.t3, lineHeight: 1.4 }}>Add a domain requested by the customer. This creates a new assessment category with its own metric slider.</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ flex: 1 }}><div style={{ fontSize: 8, fontWeight: 600, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>DOMAIN NAME</div><input value={newDomainName} onChange={function (e) { setNewDomainName(e.target.value); }} placeholder="e.g. Compliance" style={{ width: "100%", padding: "4px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 11, outline: "none" }} /></div>
+                  <div style={{ width: 50 }}><div style={{ fontSize: 8, fontWeight: 600, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>ICON</div><input value={newDomainIcon} onChange={function (e) { setNewDomainIcon(e.target.value); }} style={{ width: "100%", padding: "4px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 11, outline: "none", textAlign: "center" }} /></div>
+                </div>
+                <div><div style={{ fontSize: 8, fontWeight: 600, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>METRIC LABEL</div><input value={newDomainMetricLabel} onChange={function (e) { setNewDomainMetricLabel(e.target.value); }} placeholder="e.g. Regulatory Compliance Gap" style={{ width: "100%", padding: "4px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 11, outline: "none" }} /></div>
+                <div><div style={{ fontSize: 8, fontWeight: 600, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>METRIC DESCRIPTION</div><input value={newDomainMetricDesc} onChange={function (e) { setNewDomainMetricDesc(e.target.value); }} placeholder="e.g. Gap between current state and regulatory requirements" style={{ width: "100%", padding: "4px 8px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t0, fontSize: 11, outline: "none" }} /></div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={function () { addCustomDomain(); }} style={{ flex: 1, padding: "6px 10px", borderRadius: 4, border: "1px solid " + th.accent + "50", background: th.accent + "10", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 700, fontFamily: "monospace" }}>ADD DOMAIN</button>
+                  <button onClick={function () { setShowAddDomain(false); setNewDomainName(""); setNewDomainIcon("📋"); setNewDomainMetricLabel(""); setNewDomainMetricDesc(""); }} style={{ padding: "6px 10px", borderRadius: 4, border: "1px solid " + th.brd, background: "transparent", color: th.t3, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>CANCEL</button>
+                </div>
+              </div>}
+            </div>
           </div>}
 
           {/* DASHBOARD */}
@@ -507,7 +636,7 @@ export default function PainEngine() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAINS BY SEVERITY</div>
-                {groupAvgs.map(function (g) { return <div key={g.group} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}><span style={{ fontSize: 12 }}>{g.icon}</span><span style={{ width: 70, fontSize: 10, color: th.t2 }}>{g.group}</span><div style={{ flex: 1 }}><BarFill value={g.avg} color={g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok} th={th} height={6} /></div><span style={{ fontSize: 11, fontWeight: 700, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok, fontFamily: "monospace", width: 20, textAlign: "right" }}>{g.avg}</span></div>; })}
+                {allGroupAvgs.map(function (g) { return <div key={g.group} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}><span style={{ fontSize: 12 }}>{g.icon}</span><span style={{ width: 70, fontSize: 10, color: th.t2 }}>{g.group}</span><div style={{ flex: 1 }}><BarFill value={g.avg} color={g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok} th={th} height={6} /></div><span style={{ fontSize: 11, fontWeight: 700, color: g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok, fontFamily: "monospace", width: 20, textAlign: "right" }}>{g.avg}</span></div>; })}
               </div>
               <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>PRIORITY BANDS</div>
@@ -593,7 +722,7 @@ export default function PainEngine() {
       <div style={{ width: 220, flexShrink: 0, borderLeft: "1px solid " + th.brd, background: th.panel, display: "flex", flexDirection: "column" }}>
         <div style={{ padding: "6px 10px", borderBottom: "1px solid " + th.brd, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", letterSpacing: 1 }}>INSPECTOR</span>
-          {inspData && <button onClick={function () { setInspData(null); setEditingId(null); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 10, color: th.t3 }}>✕</button>}
+          {(inspData || inspDomain) && <button onClick={function () { setInspData(null); setEditingId(null); setInspDomain(null); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 10, color: th.t3 }}>✕</button>}
         </div>
         <div style={{ flex: 1, padding: 10, overflowY: "auto" }}>{renderInspector()}</div>
       </div>
