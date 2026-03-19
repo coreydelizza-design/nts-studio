@@ -597,14 +597,10 @@ export default function PainEngine() {
                     {domainConstraints.length > 0 ? domainConstraints.length + " CONSTRAINT" + (domainConstraints.length > 1 ? "S" : "") : ""}
                   </div>}
                   {domainItems.map(function (item) { return renderInlineItem(item); })}
-                  <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                    <button onClick={function () { addItem("pain", group.group); }} style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, padding: "5px 10px", borderRadius: 4, border: "1px dashed " + th.err + "40", background: th.err + "04", color: th.err, cursor: "pointer", fontSize: 10, fontWeight: 500 }}>
-                      <span style={{ fontSize: 13, lineHeight: "13px" }}>+</span> Pain point
-                    </button>
-                    <button onClick={function () { addItem("constraint", group.group); }} style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, padding: "5px 10px", borderRadius: 4, border: "1px dashed " + th.warn + "40", background: th.warn + "04", color: th.warn, cursor: "pointer", fontSize: 10, fontWeight: 500 }}>
-                      <span style={{ fontSize: 13, lineHeight: "13px" }}>+</span> Constraint
-                    </button>
-                  </div>
+                  <button onClick={function () { addItem("pain", group.group); }}
+                    style={{ display: "flex", alignItems: "center", gap: 5, width: "100%", padding: "6px 12px", borderRadius: 4, border: "1px dashed " + th.accent + "40", background: th.accent + "04", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 500, marginTop: 6 }}>
+                    <span style={{ fontSize: 14, lineHeight: "14px" }}>+</span> Add issue
+                  </button>
                 </div>
               </div>}
               </div>;
