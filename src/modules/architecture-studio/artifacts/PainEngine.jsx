@@ -586,10 +586,11 @@ export default function PainEngine() {
               </div>
             </div>
             {allGroups.map(function (group) {
-              return <div key={group.group} style={{ padding: 14, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              return <div key={group.group} style={{ padding: 14, borderRadius: 5, background: th.card, border: inspDomain === group.group ? "1px solid " + th.accent : "1px solid " + th.brd, transition: "border 0.2s" }}>
+                <div onClick={function () { openDomainInspector(group.group); }} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, cursor: "pointer" }}>
                   <span style={{ fontSize: 16 }}>{group.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: th.t0 }}>{group.group}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: inspDomain === group.group ? th.accent : th.t0 }}>{group.group}</span>
+                  <span style={{ fontSize: 8, color: th.t4, fontFamily: "monospace", marginLeft: "auto" }}>INSPECT ▸</span>
                 </div>
                 {group.metrics.map(function (m) {
                   var val = assessment[m.key] || 0;
