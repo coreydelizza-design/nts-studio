@@ -213,6 +213,7 @@ export default function PainEngine() {
   var [aiTrace, setAiTrace] = useState(null);
   var [aiResolution, setAiResolution] = useState(null);
   var [aiLoading, setAiLoading] = useState(false);
+  var [showAssessmentBanner, setShowAssessmentBanner] = useState(true);
 
   var engine = useMemo(function () { return createEngine(assessment); }, [assessment]);
 
@@ -434,6 +435,25 @@ export default function PainEngine() {
         <div style={{ flex: 1, padding: 14, overflowY: "auto" }}>
           {/* ASSESSMENT */}
           {view === "assessment" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {showAssessmentBanner && <div style={{ position: "relative", padding: 14, borderRadius: 6, background: th.accent + "06", border: "1px solid " + th.accent + "20" }}>
+              <button onClick={function () { setShowAssessmentBanner(false); }} style={{ position: "absolute", top: 8, right: 8, background: "none", border: "none", cursor: "pointer", fontSize: 12, color: th.t3, padding: 4 }}>✕</button>
+              <div style={{ fontSize: 13, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5, marginBottom: 6 }}>NETWORK PAIN ASSESSMENT</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, marginBottom: 10 }}>Rate your customer's network environment across 7 domains using the sliders below. Each slider scores a specific pain dimension from 0 (no issue) to 10 (severe). These assessment values automatically cascade into every pain point and constraint — driving their Impact, Likelihood, and Urgency scores in real time. The overall Pain Intensity score (top left) is the average of all 11 metrics scaled to 100.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5, marginBottom: 3 }}>CASCADING</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Moving a slider instantly updates scores on every linked pain and constraint</div>
+                </div>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5, marginBottom: 3 }}>OVERRIDABLE</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Any auto-derived score can be manually overridden in the Inspector panel</div>
+                </div>
+                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", letterSpacing: 0.5, marginBottom: 3 }}>DOMAIN MAP</div>
+                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>The heat map below highlights which domains need the most attention</div>
+                </div>
+              </div>
+            </div>}
             <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
               <div style={{ width: 130, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>PAIN INTENSITY</div>
