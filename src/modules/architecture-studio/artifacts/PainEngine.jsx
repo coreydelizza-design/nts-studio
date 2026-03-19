@@ -411,7 +411,7 @@ export default function PainEngine() {
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 26, height: 26, borderRadius: 5, background: "linear-gradient(135deg, " + th.err + ", " + th.warn + ")", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", fontWeight: 900, fontFamily: "monospace" }}>P</div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: th.t0 }}>Pain & Constraint Engine</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: th.t0 }}>Pain & Constraint Assessment Engine</div>
           <div style={{ fontSize: 8, color: th.t3, fontFamily: "monospace", letterSpacing: 0.5 }}>ARCHITECTURE STUDIO MODULE</div>
         </div>
         <div style={{ width: 1, height: 20, background: th.brd }} />
