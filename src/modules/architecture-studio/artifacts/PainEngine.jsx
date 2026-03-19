@@ -32,7 +32,13 @@ var METRIC_GROUPS = [
     { key: "cloudAppPerformance", label: "Cloud Application Performance", desc: "Latency and throughput to SaaS/IaaS", initial: 0 },
   ]},
   { group: "Security", icon: "🛡", metrics: [
-    { key: "securityFragmentation", label: "Security Tool Fragmentation", desc: "Overlapping, siloed security platforms", initial: 0 },
+    { key: "securityStackComplexity", label: "Security Stack Complexity", desc: "Overlapping, siloed security platforms and tools", initial: 0 },
+    { key: "threatSurfaceExposure", label: "Threat Surface Exposure", desc: "Attack vectors growing with cloud, branches, remote workers", initial: 0 },
+    { key: "securityPolicyInconsistency", label: "Security Policy Inconsistency", desc: "Different enforcement rules at HQ vs branches vs cloud vs remote", initial: 0 },
+    { key: "zeroTrustReadiness", label: "Zero Trust Readiness", desc: "Distance from least-privilege, continuous verification model", initial: 0 },
+    { key: "threatDetectionGaps", label: "Threat Detection & Response Gaps", desc: "Time to detect, investigate, and contain incidents", initial: 0 },
+    { key: "secureAccessSprawl", label: "Secure Access Sprawl", desc: "VPN overload, multiple remote access tools, no unified approach", initial: 0 },
+    { key: "dataProtectionBurden", label: "Data Protection & Compliance Burden", desc: "Encryption gaps, DLP coverage, regulatory overhead", initial: 0 },
   ]},
   { group: "Operations", icon: "🔧", metrics: [
     { key: "carrierSprawl", label: "Carrier & Circuit Sprawl", desc: "Multi-vendor complexity and cost leakage", initial: 0 },
@@ -66,10 +72,12 @@ var CATEGORY_METRICS = {
   "Cost": ["carrierSprawl", "vendorSLA"],
   "Performance": ["cloudAppPerformance", "outageFrequency"],
   "Complexity": ["carrierSprawl", "manualOps", "ticketVolume"],
-  "Security": ["securityFragmentation", "visibilityGaps"],
+  "Security": ["securityStackComplexity", "threatSurfaceExposure", "securityPolicyInconsistency", "zeroTrustReadiness"],
   "Agility": ["siteDeployVelocity", "maIntegration"],
   "Cloud": ["cloudAppPerformance"],
-  "Compliance": ["securityFragmentation"],
+  "Compliance": ["dataProtectionBurden", "securityPolicyInconsistency"],
+  "Access": ["secureAccessSprawl", "zeroTrustReadiness"],
+  "Threat": ["threatSurfaceExposure", "threatDetectionGaps"],
   "Contractual": ["carrierSprawl"],
   "Operational": ["manualOps", "ticketVolume"],
   "Vendor": ["vendorSLA"],
@@ -79,7 +87,7 @@ var CATEGORY_METRICS = {
 var DOMAIN_CATEGORIES = {
   "Reliability": ["Performance", "Complexity"],
   "Performance": ["Performance", "Cloud"],
-  "Security": ["Security", "Compliance"],
+  "Security": ["Security", "Compliance", "Access", "Threat"],
   "Operations": ["Complexity", "Cost", "Operational"],
   "Agility": ["Agility"],
   "Strategic": ["Agility", "Governance"],
@@ -442,7 +450,7 @@ export default function PainEngine() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
           <EditField label="Type" value={item.itemType || "pain"} onChange={function(v){updateItem(item.id,"itemType",v)}} th={th} type="select" options={["pain","constraint"]} />
-          <EditField label="Category" value={item.category} onChange={function(v){updateItemCategory(item.id, v)}} th={th} type="select" options={["Cost","Performance","Complexity","Security","Agility","Cloud","Compliance","Contractual","Operational","Vendor","Governance"]} />
+          <EditField label="Category" value={item.category} onChange={function(v){updateItemCategory(item.id, v)}} th={th} type="select" options={["Cost","Performance","Complexity","Security","Access","Threat","Agility","Cloud","Compliance","Contractual","Operational","Vendor","Governance"]} />
           <EditField label="Severity" value={item.severity} onChange={function(v){updateItem(item.id,"severity",v)}} th={th} type="select" options={["high","medium","low"]} />
           <EditField label="Status" value={item.status} onChange={function(v){updateItem(item.id,"status",v)}} th={th} type="select" options={["open","mitigated","resolved","accepted"]} />
         </div>
