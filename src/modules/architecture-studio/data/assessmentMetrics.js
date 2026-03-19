@@ -1,144 +1,39 @@
-/**
- * Assessment Metrics — Architecture Studio
- *
- * 11 metrics across 7 domains used by the Scoring Engine to derive
- * impact, likelihood, and urgency scores for pain points.
- *
- * Each metric has:
- *   key       — unique identifier (used in store and scoring lookups)
- *   label     — display name
- *   domain    — one of the 7 assessment domains
- *   weight    — relative importance within its domain (0–1)
- *   scale     — { min, max, step } for the input control
- *   desc      — short description shown in tooltips
- */
+// architecture-studio/src/data/assessmentMetrics.js
 
-// ─── Domains ───────────────────────────────────────────────
-
-export const DOMAINS = [
-  'Reliability',
-  'Performance',
-  'Security',
-  'Operations',
-  'Agility',
-  'Strategic',
-  'Vendor',
+export var METRIC_GROUPS = [
+  { group: "Reliability", icon: "⚡", metrics: [
+    { key: "outageFrequency", label: "Outage Frequency", desc: "Unplanned downtime events per quarter", initial: 8 },
+    { key: "mttr", label: "Mean Time to Resolve", desc: "Hours to restore service after incident", initial: 7 },
+  ]},
+  { group: "Performance", icon: "☁", metrics: [
+    { key: "cloudAppPerformance", label: "Cloud Application Performance", desc: "Latency and throughput to SaaS/IaaS", initial: 6 },
+  ]},
+  { group: "Security", icon: "🛡", metrics: [
+    { key: "securityFragmentation", label: "Security Tool Fragmentation", desc: "Overlapping, siloed security platforms", initial: 9 },
+  ]},
+  { group: "Operations", icon: "🔧", metrics: [
+    { key: "carrierSprawl", label: "Carrier & Circuit Sprawl", desc: "Multi-vendor complexity and cost leakage", initial: 7 },
+    { key: "visibilityGaps", label: "Network Visibility Gaps", desc: "Blind spots in traffic and performance", initial: 5 },
+    { key: "ticketVolume", label: "Ticket Volume & Escalations", desc: "Operational overhead from manual processes", initial: 4 },
+    { key: "manualOps", label: "Manual Operations Burden", desc: "CLI-driven changes, no automation pipeline", initial: 7 },
+  ]},
+  { group: "Agility", icon: "🚀", metrics: [
+    { key: "siteDeployVelocity", label: "Site Deployment Velocity", desc: "Weeks/months to provision new locations", initial: 6 },
+  ]},
+  { group: "Strategic", icon: "🏢", metrics: [
+    { key: "maIntegration", label: "M&A Integration Friction", desc: "Time and complexity to integrate acquisitions", initial: 8 },
+  ]},
+  { group: "Vendor", icon: "📉", metrics: [
+    { key: "vendorSLA", label: "Vendor SLA Performance", desc: "Missed SLAs and accountability gaps", initial: 3 },
+  ]},
 ];
 
-// ─── Metric Definitions ────────────────────────────────────
+export var METRIC_NAMES = {};
+METRIC_GROUPS.forEach(function (g) {
+  g.metrics.forEach(function (m) { METRIC_NAMES[m.key] = m.label; });
+});
 
-export const METRIC_GROUPS = [
-  // Reliability (2 metrics)
-  {
-    key: 'outageFrequency',
-    label: 'Outage Frequency',
-    domain: 'Reliability',
-    weight: 0.6,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Average unplanned outages per quarter across all sites',
-  },
-  {
-    key: 'mttr',
-    label: 'Mean Time to Restore',
-    domain: 'Reliability',
-    weight: 0.4,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Average hours to restore service after an incident',
-  },
-
-  // Performance (2 metrics)
-  {
-    key: 'cloudLatency',
-    label: 'Cloud Application Latency',
-    domain: 'Performance',
-    weight: 0.5,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'User-perceived latency to primary SaaS/cloud workloads',
-  },
-  {
-    key: 'branchThroughput',
-    label: 'Branch Throughput Adequacy',
-    domain: 'Performance',
-    weight: 0.5,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'How well branch bandwidth meets current application demand',
-  },
-
-  // Security (2 metrics)
-  {
-    key: 'securityFragmentation',
-    label: 'Security Tool Fragmentation',
-    domain: 'Security',
-    weight: 0.55,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Number of overlapping/disjointed security tools in the estate',
-  },
-  {
-    key: 'policyConsistency',
-    label: 'Policy Consistency',
-    domain: 'Security',
-    weight: 0.45,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Uniformity of security policy enforcement across sites and users',
-  },
-
-  // Operations (1 metric)
-  {
-    key: 'manualEffort',
-    label: 'Manual Operational Effort',
-    domain: 'Operations',
-    weight: 1.0,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'FTE-hours spent on manual network changes, tickets, and troubleshooting',
-  },
-
-  // Agility (1 metric)
-  {
-    key: 'deployVelocity',
-    label: 'Deployment Velocity',
-    domain: 'Agility',
-    weight: 1.0,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Average weeks to provision a new site or major circuit change',
-  },
-
-  // Strategic (2 metrics)
-  {
-    key: 'cloudReadiness',
-    label: 'Cloud Transformation Readiness',
-    domain: 'Strategic',
-    weight: 0.5,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'How well the network supports multi-cloud and SaaS-first strategy',
-  },
-  {
-    key: 'maIntegration',
-    label: 'M&A Integration Friction',
-    domain: 'Strategic',
-    weight: 0.5,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Difficulty integrating acquired entities onto the corporate network',
-  },
-
-  // Vendor (1 metric)
-  {
-    key: 'vendorConcentration',
-    label: 'Vendor/Carrier Concentration Risk',
-    domain: 'Vendor',
-    weight: 1.0,
-    scale: { min: 0, max: 10, step: 1 },
-    desc: 'Over-reliance on a single carrier or vendor for critical connectivity',
-  },
-];
-
-// ─── Convenience Lookups ───────────────────────────────────
-
-/** Map of key → display label */
-export const METRIC_NAMES = Object.fromEntries(
-  METRIC_GROUPS.map((m) => [m.key, m.label])
-);
-
-/** Default assessment with all metrics at 0 (unscored) */
-export const DEFAULT_ASSESSMENT = Object.fromEntries(
-  METRIC_GROUPS.map((m) => [m.key, 0])
-);
+export var DEFAULT_ASSESSMENT = {};
+METRIC_GROUPS.forEach(function (g) {
+  g.metrics.forEach(function (m) { DEFAULT_ASSESSMENT[m.key] = m.initial; });
+});

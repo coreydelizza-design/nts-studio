@@ -1,108 +1,28 @@
-/**
- * Architecture Studio — Theme Tokens
- *
- * Two palettes designed for extended analytical work:
- *   DARK  — "Precision Aerospace" (deep navy, electric cyan accents)
- *   LIGHT — "Frosted Titanium" (warm off-white, slate-blue structure)
- */
+// architecture-studio/src/theme/index.js
+// Shared theme definitions for all modules
 
-const shared = {
-  // Accent palette
-  cyan: '#22d3ee',
-  blue: '#3b82f6',
-  violet: '#a78bfa',
-  rose: '#fb7185',
-  amber: '#fbbf24',
-  emerald: '#34d399',
-  lime: '#a3e635',
-  orange: '#fb923c',
-  slate: '#64748b',
-
-  // Semantic
-  success: '#34d399',
-  warning: '#fbbf24',
-  danger: '#fb7185',
-  info: '#38bdf8',
-
-  // Typography
-  fontDisplay: "'Outfit', sans-serif",
-  fontBody: "'DM Sans', sans-serif",
-  fontMono: "'JetBrains Mono', monospace",
-
-  // Border radii
-  radius: { sm: 6, md: 10, lg: 14, xl: 20 },
+export var DARK = {
+  bg: "#060a11", panel: "#0c1222", card: "#111c30", cardHov: "#162440",
+  input: "#0b1120", inset: "#080d18",
+  brd: "#182238", brdA: "#2a4570", brdS: "#14202f",
+  t0: "#e8edf5", t1: "#bcc8da", t2: "#8494ad", t3: "#5a6d88", t4: "#3a4d66",
+  accent: "#4a9eff", accentBg: "rgba(74,158,255,0.08)",
+  ok: "#34d4a4", okBg: "rgba(52,212,164,0.08)",
+  warn: "#eda050", warnBg: "rgba(237,160,80,0.08)",
+  err: "#ef5060", errBg: "rgba(239,80,96,0.08)",
+  purple: "#a07cf0", purpleBg: "rgba(160,124,240,0.08)",
+  cyan: "#20d0e8", orange: "#f09040",
 };
 
-export const DARK = {
-  mode: 'dark',
-
-  // Backgrounds
-  bg: '#060a13',
-  bgDeep: '#0a0f1c',
-  bgCanvas: '#060a14',
-  bgCard: 'rgba(12,19,35,0.75)',
-  bgGlass: 'rgba(14,22,40,0.65)',
-  bgPanel: 'rgba(10,16,30,0.92)',
-  bgHover: 'rgba(30,42,65,0.5)',
-  bgInput: 'rgba(12,20,38,0.9)',
-  bgElevated: 'rgba(20,30,52,0.8)',
-
-  // Borders
-  border: 'rgba(40,55,85,0.45)',
-  borderFocus: 'rgba(56,189,248,0.5)',
-  borderSubtle: 'rgba(35,48,72,0.3)',
-
-  // Primary accent
-  accent: '#38bdf8',
-  accentDim: 'rgba(56,189,248,0.12)',
-
-  // Text hierarchy
-  text: '#e8edf5',
-  textSoft: '#b8c5d8',
-  textMuted: '#7a8ba4',
-  textDim: '#475569',
-
-  // Shadows
-  shadow: '0 4px 24px rgba(0,0,0,0.25)',
-  shadowHeavy: '0 8px 40px rgba(0,0,0,0.4)',
-  shadowGlow: '0 0 20px rgba(56,189,248,0.1)',
-
-  ...shared,
-};
-
-export const LIGHT = {
-  mode: 'light',
-
-  // Backgrounds
-  bg: '#f0f2f5',
-  bgDeep: '#e8ebf0',
-  bgCanvas: '#eceef2',
-  bgCard: 'rgba(255,255,255,0.82)',
-  bgGlass: 'rgba(255,255,255,0.6)',
-  bgPanel: 'rgba(248,250,252,0.95)',
-  bgHover: 'rgba(226,232,240,0.6)',
-  bgInput: 'rgba(241,245,249,0.95)',
-  bgElevated: 'rgba(255,255,255,0.9)',
-
-  // Borders
-  border: 'rgba(148,163,184,0.25)',
-  borderFocus: 'rgba(14,165,233,0.45)',
-  borderSubtle: 'rgba(148,163,184,0.15)',
-
-  // Primary accent
-  accent: '#0ea5e9',
-  accentDim: 'rgba(14,165,233,0.1)',
-
-  // Text hierarchy
-  text: '#0f172a',
-  textSoft: '#334155',
-  textMuted: '#64748b',
-  textDim: '#94a3b8',
-
-  // Shadows
-  shadow: '0 4px 24px rgba(0,0,0,0.06)',
-  shadowHeavy: '0 8px 40px rgba(0,0,0,0.1)',
-  shadowGlow: '0 0 20px rgba(14,165,233,0.08)',
-
-  ...shared,
+export var LIGHT = {
+  bg: "#edf0f5", panel: "#ffffff", card: "#ffffff", cardHov: "#f6f8fc",
+  input: "#f0f3f7", inset: "#e8ecf2",
+  brd: "#d6dde6", brdA: "#7090b0", brdS: "#e2e8ef",
+  t0: "#0f172a", t1: "#1e293b", t2: "#475569", t3: "#94a3b8", t4: "#cbd5e1",
+  accent: "#2563eb", accentBg: "rgba(37,99,235,0.06)",
+  ok: "#059669", okBg: "rgba(5,150,105,0.06)",
+  warn: "#d97706", warnBg: "rgba(217,119,6,0.06)",
+  err: "#dc2626", errBg: "rgba(220,38,38,0.06)",
+  purple: "#7c3aed", purpleBg: "rgba(124,58,237,0.06)",
+  cyan: "#0891b2", orange: "#ea580c",
 };
