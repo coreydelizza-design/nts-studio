@@ -299,6 +299,10 @@ export default function PainEngine() {
   }
 
   function toggleItem(id) { var it = items.find(function (i) { return i.id === id; }); if (it) updateItem(id, "enabled", it.enabled === false); }
+  function deleteItem(id) {
+    setItems(function (p) { return p.filter(function (i) { return i.id !== id; }); });
+    if (expandedId === id) setExpandedId(null);
+  }
 
   function addItem(type, domainGroup) {
     var nid = "pp" + Date.now();
@@ -397,6 +401,11 @@ export default function PainEngine() {
             <span style={{ fontSize: 12, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</span>
           </div>
         </div>
+        <button onClick={function (e) { e.stopPropagation(); deleteItem(item.id); }}
+          style={{ width: 20, height: 20, borderRadius: 4, border: "none", background: "transparent", color: th.t4, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, fontSize: 11 }}
+          title="Delete issue">
+          ✕
+        </button>
       </div>
 
       {/* Expanded panel */}
