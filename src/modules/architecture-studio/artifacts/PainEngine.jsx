@@ -404,14 +404,20 @@ export default function PainEngine() {
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>SCORING ENGINE</div>
           <div style={{ fontSize: 8, color: th.t3, marginBottom: 6, lineHeight: 1.4 }}>Scores cascade from the assessment sliders above. Click any slider to override. RESET returns to auto.</div>
-          {item.linkedMetrics && item.linkedMetrics.length > 0 && <div style={{ padding: "5px 6px", borderRadius: 3, background: th.cyan + "08", border: "1px solid " + th.cyan + "18", marginBottom: 8 }}>
-            <div style={{ fontSize: 7, fontWeight: 700, color: th.cyan, fontFamily: "monospace", marginBottom: 3 }}>LINKED ASSESSMENT METRICS \u2191</div>
+          {item.linkedMetrics && item.linkedMetrics.length > 0 && <div style={{ padding: "6px 8px", borderRadius: 4, background: th.cyan + "06", border: "1px solid " + th.cyan + "18", marginBottom: 8 }}>
+            <div style={{ fontSize: 7, fontWeight: 700, color: th.cyan, fontFamily: "monospace", marginBottom: 6 }}>LINKED ASSESSMENT METRICS — adjust to rescore</div>
             {item.linkedMetrics.map(function (k) {
               var isMetOff = !!disabledMetrics[k];
-              return <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "1px 0", opacity: isMetOff ? 0.35 : 1 }}>
-              <span style={{ fontSize: 9, color: isMetOff ? th.t4 : th.t2, textDecoration: isMetOff ? "line-through" : "none" }}>{METRIC_NAMES[k] || k}{isMetOff ? " (excluded)" : ""}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: isMetOff ? th.t4 : ((assessment[k] || 0) >= 7 ? th.err : (assessment[k] || 0) >= 4 ? th.warn : (assessment[k] || 0) > 0 ? th.ok : th.t4), fontFamily: "monospace" }}>{isMetOff ? "\u2014" : (assessment[k] || 0) + "/10"}</span>
-            </div>; })}
+              var val = assessment[k] || 0;
+              var mc = isMetOff ? th.t4 : (val >= 7 ? th.err : val >= 4 ? th.warn : val > 0 ? th.ok : th.t4);
+              return <div key={k} style={{ marginBottom: 6, opacity: isMetOff ? 0.35 : 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                  <span style={{ fontSize: 9, color: isMetOff ? th.t4 : th.t2, textDecoration: isMetOff ? "line-through" : "none" }}>{METRIC_NAMES[k] || k}{isMetOff ? " (excluded)" : ""}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: mc, fontFamily: "monospace" }}>{isMetOff ? "—" : val + "/10"}</span>
+                </div>
+                {!isMetOff && <Slider value={val} onChange={function (v) { updateAssessment(k, v); }} th={th} color={mc} showTicks={false} />}
+              </div>;
+            })}
           </div>}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             <div>{scoreSlider("BUSINESS IMPACT", "impact", "manualImpact", sc.impact, sc.impactSrc)}</div>
