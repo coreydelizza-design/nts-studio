@@ -312,17 +312,18 @@ export default function PainEngine() {
     if (expandedId === id) setExpandedId(null);
   }
 
-  function addItem(type, domainGroup) {
+  function addItem(type, domainGroup, metricKey) {
     var nid = "pp" + Date.now();
     var defaultCats = DOMAIN_CATEGORIES[domainGroup] || [];
     var cat = type === "constraint"
       ? (defaultCats.indexOf("Contractual") !== -1 ? "Contractual" : defaultCats.indexOf("Compliance") !== -1 ? "Compliance" : defaultCats.indexOf("Operational") !== -1 ? "Operational" : defaultCats.indexOf("Vendor") !== -1 ? "Vendor" : defaultCats.indexOf("Governance") !== -1 ? "Governance" : "Contractual")
       : (defaultCats[0] || "Cost");
+    var linked = metricKey ? [metricKey] : (CATEGORY_METRICS[cat] || []);
     setItems(function (p) { return p.concat([{
       id: nid, itemType: type, category: cat, severity: "medium",
       description: "", sites: "", impact: "", owner: "", status: "open",
       resolution: "", targetDate: "", linkedPattern: "", traceability: "",
-      linkedMetrics: CATEGORY_METRICS[cat] || [],
+      linkedMetrics: linked,
       manualImpact: null, manualLikelihood: null, manualEffort: 5, manualUrgency: null,
       domain: domainGroup
     }]); });
@@ -608,6 +609,26 @@ export default function PainEngine() {
                       </div>
                       {!isMetricOff && <Slider value={val} onChange={function (v) { updateAssessment(m.key, v); }} th={th} color={sliderC} />}
                       {isMetricOff && <div style={{ height: 20, display: "flex", alignItems: "center" }}><span style={{ fontSize: 9, color: th.t4, fontFamily: "monospace" }}>EXCLUDED FROM SCORING</span></div>}
+                      {!isMetricOff && (function () {
+                        var metricItems = active.filter(function (it) { return it.linkedMetrics && it.linkedMetrics.indexOf(m.key) !== -1; });
+                        return <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                            {metricItems.map(function (it) {
+                              var isPn = (it.itemType || "pain") === "pain";
+                              var itC = isPn ? th.err : th.warn;
+                              var pri = engine.priority(it);
+                              var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                              return <span key={it.id} onClick={function () { setExpandedId(expandedId === it.id ? null : it.id); }}
+                                style={{ fontSize: 8, padding: "1px 6px", borderRadius: 3, background: itC + "08", border: "1px solid " + itC + "15", color: th.t2, cursor: "pointer", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                <span style={{ fontSize: 8, fontWeight: 700, color: priC, fontFamily: "monospace" }}>{pri}</span>
+                                {it.description ? (it.description.length > 25 ? it.description.substring(0, 25) + "…" : it.description) : "(untitled)"}
+                              </span>;
+                            })}
+                          </div>
+                          <button onClick={function (e) { e.stopPropagation(); addItem("pain", group.group, m.key); }}
+                            style={{ fontSize: 8, padding: "2px 6px", borderRadius: 3, border: "1px dashed " + th.accent + "40", background: "transparent", color: th.accent, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>+ issue</button>
+                        </div>;
+                      })()}
                     </div>;
                   })}
                 </div>
