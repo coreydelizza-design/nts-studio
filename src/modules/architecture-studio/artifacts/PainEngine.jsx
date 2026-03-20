@@ -182,6 +182,15 @@ function ToggleSwitch({ enabled, onClick, th }) {
   </button>;
 }
 
+function NextStep({ label, onClick, th, color }) {
+  return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 0", marginTop: 8 }}>
+    <button onClick={onClick}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 4, border: "1px solid " + (color || th.accent) + "30", background: (color || th.accent) + "06", color: color || th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>
+      {label} <span style={{ fontSize: 14 }}>→</span>
+    </button>
+  </div>;
+}
+
 function AddBtn({ label, onClick, th }) {
   return <button onClick={onClick} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 4, border: "1px dashed " + th.accent + "50", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, width: "100%" }}>
     <span style={{ fontSize: 14, lineHeight: "14px" }}>+</span> {label}
@@ -479,7 +488,7 @@ export default function PainEngine() {
 
   var VIEWS = [
     { id: "assess", label: "Assess & Capture" },
-    { id: "dashboard", label: "Dashboard" },
+    { id: "strategy", label: "Strategy & Action" },
     { id: "ai", label: "AI Analysis" },
   ];
 
