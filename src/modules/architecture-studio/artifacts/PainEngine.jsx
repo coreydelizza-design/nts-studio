@@ -414,13 +414,23 @@ export default function PainEngine() {
         </span>
         {item.linkedPattern && <Tag color={th.accent}>{item.linkedPattern}</Tag>}
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {[{ l: "IMP", v: sc.impact, s: sc.impactSrc }, { l: "URG", v: sc.urgency, s: sc.urgencySrc }, { l: "EFF", v: sc.effort, s: sc.effortSrc }].map(function (d) {
-            var c2 = d.l === "EFF" ? (d.v >= 7 ? th.ok : d.v >= 4 ? th.warn : th.err) : (d.v >= 7 ? th.err : d.v >= 4 ? th.warn : th.ok);
+          {[{ l: "IMP", v: sc.impact }, { l: "URG", v: sc.urgency }].map(function (d) {
+            var c2 = d.v >= 7 ? th.err : d.v >= 4 ? th.warn : th.ok;
             return <div key={d.l} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>{d.l}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: c2, fontFamily: "monospace" }}>{d.v}</div>
             </div>;
           })}
+          <div style={{ textAlign: "center" }} onClick={function (e) { e.stopPropagation(); }}>
+            <div style={{ fontSize: 7, color: th.warn, fontFamily: "monospace", fontWeight: 600 }}>EFF</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <button onClick={function (e) { e.stopPropagation(); updateItem(item.id, "manualEffort", Math.max(1, (sc.effort || 5) - 1)); }}
+                style={{ width: 14, height: 14, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 10, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>−</button>
+              <span style={{ fontSize: 11, fontWeight: 700, color: sc.effort >= 7 ? th.err : sc.effort >= 4 ? th.warn : th.ok, fontFamily: "monospace", minWidth: 14, textAlign: "center" }}>{sc.effort}</span>
+              <button onClick={function (e) { e.stopPropagation(); updateItem(item.id, "manualEffort", Math.min(10, (sc.effort || 5) + 1)); }}
+                style={{ width: 14, height: 14, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 10, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
+            </div>
+          </div>
           <div style={{ width: 30, height: 24, borderRadius: 4, background: priC + "18", border: "1px solid " + priC + "35", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontSize: 12, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</span>
           </div>
@@ -454,7 +464,7 @@ export default function PainEngine() {
           </div>}
           <div style={{ padding: 8, borderRadius: 4, background: th.warn + "06", border: "1px solid " + th.warn + "15", marginBottom: 6 }}>
             <div style={{ fontSize: 8, color: th.t3, marginBottom: 4 }}>Set effort based on implementation complexity — this determines triage positioning</div>
-            {item.manualEffort == null && <div style={{ fontSize: 9, color: th.warn, fontFamily: "monospace", marginBottom: 4 }}>ESTIMATE EFFORT — needed for triage matrix</div>}
+            {(item.manualEffort === null || item.manualEffort === undefined) && <div style={{ padding: "6px 8px", borderRadius: 4, background: th.warn + "08", border: "1px solid " + th.warn + "18", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 9, color: th.warn, fontFamily: "monospace", fontWeight: 600 }}>SET EFFORT — ask: "How hard is this to fix?"</span></div>}
             {scoreSlider("EFFORT TO RESOLVE", "effort", "manualEffort", sc.effort, sc.effortSrc)}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
@@ -729,6 +739,35 @@ export default function PainEngine() {
                   </div>;
                 })()}
               </div>}
+              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.warn, fontFamily: "monospace", marginBottom: 4 }}>ADJUST EFFORT — REPOSITION ON MATRIX</div>
+                <div style={{ fontSize: 10, color: th.t3, marginBottom: 8 }}>Change effort to move items left (easier) or right (harder) on the triage matrix above.</div>
+                {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                  var sc = engine.scores(item);
+                  var pri = engine.priority(item);
+                  var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                  var isPain = (item.itemType || "pain") === "pain";
+                  var ac = isPain ? th.err : th.warn;
+                  var effC = sc.effort >= 7 ? th.err : sc.effort >= 4 ? th.warn : th.ok;
+                  var quadrant = sc.impact >= 5 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
+                  var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
+                  return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: ac, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
+                    <Tag color={qC} style={{ fontSize: 7 }}>{quadrant}</Tag>
+                    <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>IMP {sc.impact}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                      <span style={{ fontSize: 8, color: th.warn, fontFamily: "monospace" }}>EFF</span>
+                      <button onClick={function () { updateItem(item.id, "manualEffort", Math.max(1, sc.effort - 1)); }}
+                        style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: effC, fontFamily: "monospace", minWidth: 16, textAlign: "center" }}>{sc.effort}</span>
+                      <button onClick={function () { updateItem(item.id, "manualEffort", Math.min(10, sc.effort + 1)); }}
+                        style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace", width: 20, textAlign: "right" }}>{pri}</span>
+                  </div>;
+                })}
+              </div>
               {strategySubTab === "clusters" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>SOLUTION PATTERN CLUSTERS</div>
                 <div style={{ fontSize: 10, color: th.t3, marginBottom: 4 }}>Issues grouped by GTT solution — separate problems, shared solutions</div>
