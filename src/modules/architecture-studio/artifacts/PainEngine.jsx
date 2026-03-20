@@ -118,6 +118,55 @@ var MOCK_ITEMS = [
   { id: "demo13", itemType: "pain", category: "Vendor", severity: "low", description: "Quarterly SLA reports from 2 providers delivered in PDF only — manual data entry", sites: "All", impact: "Operational — 4 hours/quarter manual work", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Operational — automate when convenient", linkedMetrics: ["vendorSLA"], manualImpact: 3, manualLikelihood: 3, manualEffort: 4, manualUrgency: 2, annualCost: 5000, domain: "Vendor", enabled: true }
 ];
 
+var MOCK_AI_TRACE = [
+  { painSummary: "Branch outages (Mumbai/Singapore)", gttPattern: "SD-WAN", resolution: "Dual-underlay SD-WAN with automated failover and GTT Tier-1 backbone as primary transport", priority: "critical", phase: 1 },
+  { painSummary: "6 WAN providers, $180K escalation", gttPattern: "SD-WAN", resolution: "Consolidate to single GTT managed SD-WAN overlay replacing all legacy MPLS circuits", priority: "high", phase: 1 },
+  { painSummary: "No unified security policy", gttPattern: "SASE", resolution: "GTT SASE with unified policy engine — single ruleset across all 40+ sites, cloud, and remote", priority: "critical", phase: 2 },
+  { painSummary: "VPN at capacity for 350+ remote", gttPattern: "SASE", resolution: "ZTNA via GTT SASE replaces VPN concentrators — clientless access, per-app policies", priority: "high", phase: 2 },
+  { painSummary: "APAC SaaS backhauled via London", gttPattern: "Multi-Cloud", resolution: "GTT Cloud On-Ramp at Singapore and Mumbai PoPs — direct M365/Salesforce breakout", priority: "high", phase: 1 },
+  { painSummary: "Manual CLI config, no automation", gttPattern: "SD-WAN", resolution: "GTT Orchestrator with centralized policy management and zero-touch provisioning", priority: "medium", phase: 1 },
+  { painSummary: "8-14 week site provisioning", gttPattern: "On-Demand", resolution: "GTT On-Demand connectivity — sub-24hr activation for new sites via portal", priority: "high", phase: 1 },
+  { painSummary: "72hr+ threat detection time", gttPattern: "Managed Services", resolution: "GTT Managed SOC with integrated SIEM correlation across network and endpoint telemetry", priority: "critical", phase: 2 },
+  { painSummary: "BT MPLS contract until Q3 2026", gttPattern: "SD-WAN", resolution: "Parallel SD-WAN overlay during contract period — migrate traffic progressively, full cutover Q4 2026", priority: "medium", phase: 1 },
+  { painSummary: "GDPR data residency constraint", gttPattern: "VDC", resolution: "GTT VDC Service Zones in Frankfurt and Amsterdam — EU-resident compute with guaranteed data sovereignty", priority: "high", phase: 2 },
+  { painSummary: "IT headcount frozen 12 months", gttPattern: "Managed Services", resolution: "Fully managed delivery model — GTT NOC handles day-2 operations, no additional customer FTEs", priority: "medium", phase: 1 },
+  { painSummary: "Zscaler ZIA 100 seats active", gttPattern: "SASE", resolution: "Integrate existing Zscaler into GTT SASE framework or migrate to unified platform at contract renewal", priority: "low", phase: 3 }
+];
+
+var MOCK_AI_RESOLUTION = {
+  quickWins: [
+    "Deploy GTT SD-WAN overlay at Mumbai and Singapore branches — immediate resilience improvement",
+    "Enable direct cloud breakout at APAC PoPs for M365/Salesforce — 350ms→50ms latency",
+    "Activate GTT On-Demand portal for the 2 pending office openings — days not months",
+    "Engage GTT Managed NOC for 24/7 monitoring — addresses headcount freeze immediately"
+  ],
+  phases: [
+    { phase: 1, title: "Foundation — Network Transformation", duration: "0-6 months", actions: [
+      { action: "Deploy SD-WAN overlay at critical branches", gttProduct: "GTT SD-WAN", painAddressed: "Outages, carrier sprawl, manual ops", expectedImpact: "80% reduction in outage impact, 3 carriers consolidated to 1" },
+      { action: "Enable cloud on-ramps at Singapore and Mumbai PoPs", gttProduct: "GTT Cloud Connect", painAddressed: "APAC SaaS latency", expectedImpact: "Latency from 350ms to <50ms for M365/Salesforce" },
+      { action: "Activate On-Demand connectivity for new sites", gttProduct: "GTT On-Demand", painAddressed: "8-14 week provisioning", expectedImpact: "Site activation in <24 hours" },
+      { action: "Onboard GTT Managed NOC for day-2 operations", gttProduct: "GTT Managed Services", painAddressed: "Headcount freeze, manual ops", expectedImpact: "2 FTEs freed from network operations" }
+    ]},
+    { phase: 2, title: "Security Transformation", duration: "6-12 months", actions: [
+      { action: "Deploy SASE with unified security policy", gttProduct: "GTT SASE", painAddressed: "Security fragmentation, policy inconsistency", expectedImpact: "Single policy across all sites, cloud, and remote users" },
+      { action: "Replace VPN with ZTNA for remote workforce", gttProduct: "GTT SASE (ZTNA)", painAddressed: "VPN capacity, secure access sprawl", expectedImpact: "350+ remote users on zero-trust access, VPN decommissioned" },
+      { action: "Deploy managed threat detection and SOC", gttProduct: "GTT Managed SOC", painAddressed: "72hr detection gap", expectedImpact: "Mean time to detect reduced from 72hrs to <1hr" },
+      { action: "Provision EU-resident VDC service zones", gttProduct: "GTT VDC", painAddressed: "GDPR data residency", expectedImpact: "Full EU data sovereignty for EMEA traffic" }
+    ]},
+    { phase: 3, title: "Optimization & Consolidation", duration: "12-18 months", actions: [
+      { action: "Complete BT MPLS migration post-contract expiry", gttProduct: "GTT SD-WAN", painAddressed: "Contract lock-in, carrier cost", expectedImpact: "£85K ETF avoided, full MPLS decommission" },
+      { action: "Consolidate Zscaler into unified SASE platform", gttProduct: "GTT SASE", painAddressed: "Vendor concentration", expectedImpact: "Single security platform, reduced licensing cost" },
+      { action: "Extend SD-WAN to remaining global branches", gttProduct: "GTT SD-WAN", painAddressed: "Remaining carrier sprawl", expectedImpact: "100% site coverage on managed overlay" }
+    ]}
+  ],
+  risks: [
+    "BT MPLS early termination penalty if timeline accelerated before Q3 2026",
+    "Zscaler integration complexity may require extended parallel operation period",
+    "GDPR data residency validation requires legal sign-off before VDC deployment",
+    "Remote workforce adoption of ZTNA requires change management and training program"
+  ]
+};
+
 // ═══════════════════════════════════════════════════════
 // UI PRIMITIVES
 // ═══════════════════════════════════════════════════════
@@ -387,6 +436,7 @@ export default function PainEngine() {
 
   // AI functions (unchanged)
   function runAiTrace() {
+    if (demoMode) { setAiTrace(MOCK_AI_TRACE.slice()); return; }
     setAiLoading(true); setAiTrace(null);
     var aSum = METRIC_GROUPS.map(function (g) { return g.group + ": " + g.metrics.map(function (m) { return m.label + "=" + assessment[m.key] + "/10"; }).join(", "); }).join("; ");
     var pSum = activePains.map(function (p) { return "[" + p.severity + "] " + p.description; }).join("; ");
@@ -402,6 +452,7 @@ export default function PainEngine() {
   }
 
   function runAiResolve() {
+    if (demoMode) { setAiResolution(JSON.parse(JSON.stringify(MOCK_AI_RESOLUTION))); return; }
     setAiLoading(true); setAiResolution(null);
     var aSum = METRIC_GROUPS.map(function (g) { return g.group + ": " + g.metrics.map(function (m) { return m.label + "=" + assessment[m.key] + "/10"; }).join(", "); }).join("; ");
     var iSum = active.map(function (i) { return "[" + (i.itemType || "pain") + "|" + i.severity + "|" + i.category + "] " + i.description; }).join("; ");
