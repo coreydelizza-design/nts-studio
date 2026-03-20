@@ -334,7 +334,7 @@ export default function PainEngine() {
       description: "", sites: "", impact: "", owner: "", status: "open",
       resolution: "", targetDate: "", linkedPattern: "", traceability: "",
       linkedMetrics: linked,
-      manualImpact: null, manualLikelihood: null, manualEffort: 5, manualUrgency: null,
+      manualImpact: null, manualLikelihood: null, manualEffort: null, manualUrgency: null,
       domain: domainGroup
     }]); });
     setExpandedId(nid);
@@ -414,8 +414,8 @@ export default function PainEngine() {
         </span>
         {item.linkedPattern && <Tag color={th.accent}>{item.linkedPattern}</Tag>}
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {[{ l: "IMP", v: sc.impact, s: sc.impactSrc }, { l: "URG", v: sc.urgency, s: sc.urgencySrc }].map(function (d) {
-            var c2 = d.v >= 7 ? th.err : d.v >= 4 ? th.warn : th.ok;
+          {[{ l: "IMP", v: sc.impact, s: sc.impactSrc }, { l: "URG", v: sc.urgency, s: sc.urgencySrc }, { l: "EFF", v: sc.effort, s: sc.effortSrc }].map(function (d) {
+            var c2 = d.l === "EFF" ? (d.v >= 7 ? th.ok : d.v >= 4 ? th.warn : th.err) : (d.v >= 7 ? th.err : d.v >= 4 ? th.warn : th.ok);
             return <div key={d.l} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>{d.l}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: c2, fontFamily: "monospace" }}>{d.v}</div>
@@ -452,11 +452,15 @@ export default function PainEngine() {
               </div>;
             })}
           </div>}
+          <div style={{ padding: 8, borderRadius: 4, background: th.warn + "06", border: "1px solid " + th.warn + "15", marginBottom: 6 }}>
+            <div style={{ fontSize: 8, color: th.t3, marginBottom: 4 }}>Set effort based on implementation complexity — this determines triage positioning</div>
+            {item.manualEffort == null && <div style={{ fontSize: 9, color: th.warn, fontFamily: "monospace", marginBottom: 4 }}>ESTIMATE EFFORT — needed for triage matrix</div>}
+            {scoreSlider("EFFORT TO RESOLVE", "effort", "manualEffort", sc.effort, sc.effortSrc)}
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             <div>{scoreSlider("BUSINESS IMPACT", "impact", "manualImpact", sc.impact, sc.impactSrc)}</div>
             <div>{scoreSlider("LIKELIHOOD", "likelihood", "manualLikelihood", sc.likelihood, sc.likelihoodSrc)}</div>
             <div>{scoreSlider("URGENCY", "urgency", "manualUrgency", sc.urgency, sc.urgencySrc)}</div>
-            <div>{scoreSlider("EFFORT TO RESOLVE", "effort", "manualEffort", sc.effort, sc.effortSrc)}</div>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0 0", borderTop: "1px solid " + th.brd }}>
             <span style={{ fontSize: 9, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>PRIORITY</span>
