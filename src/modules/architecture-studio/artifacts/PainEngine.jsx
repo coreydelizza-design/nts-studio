@@ -717,7 +717,6 @@ export default function PainEngine() {
                 {[
                   { id: "triage", label: "Triage Matrix", color: th.accent },
                   { id: "clusters", label: "Solution Clusters", color: th.purple },
-                  { id: "bizcase", label: "Business Case", color: th.ok }
                 ].map(function (st) {
                   var isOn = strategySubTab === st.id;
                   return <button key={st.id} onClick={function () { setStrategySubTab(st.id); }}
@@ -823,9 +822,8 @@ export default function PainEngine() {
                   var patterns = {};
                   active.forEach(function (item) {
                     var p = item.linkedPattern || "Unassigned";
-                    if (!patterns[p]) patterns[p] = { items: [], totalCost: 0 };
+                    if (!patterns[p]) patterns[p] = { items: [] };
                     patterns[p].items.push(item);
-                    patterns[p].totalCost += (item.annualCost || 0);
                   });
                   var patternColors = { "SD-WAN": th.accent, "SASE": th.ok, "Multi-Cloud": th.orange, "Hybrid Backbone": th.cyan, "On-Demand": th.purple, "VDC Service Zone": th.warn, "Edge Compute": th.err, "Unassigned": th.t3 };
                   return Object.keys(patterns).sort(function (a, b) { return patterns[b].items.length - patterns[a].items.length; }).map(function (pName) {
@@ -835,7 +833,6 @@ export default function PainEngine() {
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                         <Tag color={pc}>{pName}</Tag>
                         <span style={{ fontSize: 10, color: th.t3 }}>{cluster.items.length} issue{cluster.items.length !== 1 ? "s" : ""} resolved by one solution</span>
-                        {cluster.totalCost > 0 && <span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace", marginLeft: "auto" }}>{"$" + cluster.totalCost.toLocaleString() + "/yr cost"}</span>}
                       </div>
                       {cluster.items.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
                         var isPain = (item.itemType || "pain") === "pain";
@@ -847,7 +844,6 @@ export default function PainEngine() {
                           <span style={{ width: 6, height: 6, borderRadius: "50%", background: ic, flexShrink: 0 }} />
                           <Tag color={ic} style={{ flexShrink: 0 }}>{isPain ? "PAIN" : "CNST"}</Tag>
                           <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
-                          {(item.annualCost || 0) > 0 && <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>{"$" + (item.annualCost || 0).toLocaleString()}</span>}
                           <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace" }}>{pri}</span>
                         </div>;
                       })}
@@ -858,75 +854,7 @@ export default function PainEngine() {
                   <div style={{ fontSize: 9, color: th.warn, fontFamily: "monospace" }}>TIP: Assign solution patterns to unassigned issues on the Assess & Capture tab (expand issue → Linked Pattern dropdown)</div>
                 </div>}
               </div>}
-              {strategySubTab === "bizcase" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>BUSINESS CASE — COST OF INACTION</div>
-                  <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>Enter the annual cost of each issue — downtime losses, FTE overhead, contract waste, risk exposure.</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 60px 90px", gap: 6, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
-                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>ISSUE</span>
-                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>ANNUAL COST</span>
-                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>PRIORITY</span>
-                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>EST. SAVINGS</span>
-                  </div>
-                  {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
-                    var pri = engine.priority(item);
-                    var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
-                    var cost = item.annualCost || 0;
-                    var savings = Math.round(cost * 0.7);
-                    return <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 90px 60px 90px", gap: 6, padding: "8px 0", borderBottom: "1px solid " + th.brd, alignItems: "center" }}>
-                      <span style={{ fontSize: 11, color: th.t0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
-                        <span style={{ fontSize: 10, color: th.t3 }}>$</span>
-                        <input type="number" value={cost} onChange={function (e) { updateItem(item.id, "annualCost", Number(e.target.value) || 0); }}
-                          style={{ width: 70, padding: "3px 6px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.err, fontSize: 11, fontWeight: 700, fontFamily: "monospace", textAlign: "right", outline: "none" }} />
-                      </div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace", textAlign: "right" }}>{pri}</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: cost > 0 ? th.ok : th.t4, fontFamily: "monospace", textAlign: "right" }}>{cost > 0 ? "$" + savings.toLocaleString() : "\u2014"}</span>
-                    </div>;
-                  })}
-                  {(function () {
-                    var totalCost = active.reduce(function (a, i) { return a + (i.annualCost || 0); }, 0);
-                    var totalSavings = Math.round(totalCost * 0.7);
-                    return <div style={{ marginTop: 12, padding: 12, borderRadius: 5, background: th.inset, border: "1px solid " + th.brd }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Total annual cost of pain</span>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: totalCost > 0 ? th.err : th.t4, fontFamily: "monospace" }}>{totalCost > 0 ? "$" + totalCost.toLocaleString() : "$0"}</span>
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Estimated annual savings (70%)</span>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: totalSavings > 0 ? th.ok : th.t4, fontFamily: "monospace" }}>{totalSavings > 0 ? "$" + totalSavings.toLocaleString() : "$0"}</span>
-                      </div>
-                      {totalCost > 0 && <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", borderTop: "1px solid " + th.brd, marginTop: 4 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Payback period (est.)</span>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: th.accent, fontFamily: "monospace" }}>{totalSavings > 0 ? Math.max(1, Math.round(totalCost / totalSavings * 12)) + " months" : "\u2014"}</span>
-                      </div>}
-                    </div>;
-                  })()}
-                  <div style={{ fontSize: 9, color: th.t4, marginTop: 6 }}>Annual cost is editable per issue. Savings estimate assumes 70% reduction.</div>
-                </div>
-                {(function () {
-                  var patterns = {};
-                  active.forEach(function (item) {
-                    if (!item.linkedPattern) return;
-                    if (!patterns[item.linkedPattern]) patterns[item.linkedPattern] = 0;
-                    patterns[item.linkedPattern] += (item.annualCost || 0);
-                  });
-                  var keys = Object.keys(patterns).filter(function (k) { return patterns[k] > 0; });
-                  if (keys.length === 0) return null;
-                  var patternColors = { "SD-WAN": th.accent, "SASE": th.ok, "Multi-Cloud": th.orange, "Hybrid Backbone": th.cyan, "On-Demand": th.purple, "VDC Service Zone": th.warn, "Edge Compute": th.err };
-                  return <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>COST BY SOLUTION PATTERN</div>
-                    {keys.sort(function (a, b) { return patterns[b] - patterns[a]; }).map(function (p) {
-                      var pc = patternColors[p] || th.t3;
-                      return <div key={p} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                        <Tag color={pc}>{p}</Tag>
-                        <div style={{ flex: 1 }}><BarFill value={patterns[p] / Math.max.apply(null, keys.map(function (k) { return patterns[k]; })) * 100} color={pc} th={th} height={6} /></div>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: pc, fontFamily: "monospace" }}>{"$" + patterns[p].toLocaleString()}</span>
-                      </div>;
-                    })}
-                  </div>;
-                })()}
-              </div>}
+
             </div>}
             {active.length > 0 && <NextStep label="NEXT: AI ANALYSIS" onClick={function () { setView("ai"); setExpandedId(null); }} th={th} color={th.cyan} />}
           </div>}
