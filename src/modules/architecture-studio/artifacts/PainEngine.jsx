@@ -729,15 +729,15 @@ export default function PainEngine() {
                   <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>IMPACT VS EFFORT TRIAGE</div>
                   <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>Issues plotted from your scoring engine — higher = more important, right = harder</div>
                   <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
-                    <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>MONITOR</div>
-                    <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>DEPRIORITIZE</div>
-                    <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>QUICK WINS</div>
-                    <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>STRATEGIC BETS</div>
+                    <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>MONITOR</div>
+                    <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>DEPRIORITIZE</div>
+                    <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>QUICK WINS</div>
+                    <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>STRATEGIC BETS</div>
                     <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
                     <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
-                    <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
                     <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
-                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>← IMPACT</div>
+                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>IMPACT ↑</div>
                     {active.map(function (item) {
                       var sc = engine.scores(item);
                       var pri = engine.priority(item);
