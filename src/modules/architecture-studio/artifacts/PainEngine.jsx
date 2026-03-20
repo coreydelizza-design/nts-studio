@@ -244,6 +244,7 @@ export default function PainEngine() {
   var [view, setView] = useState("assess");
   var [expandedId, setExpandedId] = useState(null);
   var [aiSubTab, setAiSubTab] = useState("trace");
+  var [strategySubTab, setStrategySubTab] = useState("triage");
   var [aiTrace, setAiTrace] = useState(null);
   var [aiResolution, setAiResolution] = useState(null);
   var [aiLoading, setAiLoading] = useState(false);
