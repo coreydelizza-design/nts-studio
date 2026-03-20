@@ -633,16 +633,263 @@ export default function PainEngine() {
             })}
           </div>}
 
-          {/* DASHBOARD — placeholder for Part 2 */}
-          {view === "dashboard" && <div style={{ padding: 20, textAlign: "center", color: th.t3 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", marginBottom: 8 }}>DASHBOARD</div>
-            <div style={{ fontSize: 11 }}>Part 2 will add the full dashboard view here.</div>
+          {/* STRATEGY & ACTION */}
+          {view === "strategy" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {active.length === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.purple + "05", border: "1px solid " + th.purple + "18", textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 6 }}>STRATEGY & ACTION — WAITING FOR DATA</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>Capture issues on the Assess & Capture tab first. This view will auto-populate from your scoring data.</div>
+              <button onClick={function () { setView("assess"); }} style={{ padding: "6px 14px", borderRadius: 4, border: "1px solid " + th.accent + "30", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>Go to Assess & Capture →</button>
+            </div>}
+            {active.length > 0 && <div>
+              <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                {[
+                  { id: "triage", label: "Triage Matrix", color: th.accent },
+                  { id: "clusters", label: "Solution Clusters", color: th.purple },
+                  { id: "bizcase", label: "Business Case", color: th.ok }
+                ].map(function (st) {
+                  var isOn = strategySubTab === st.id;
+                  return <button key={st.id} onClick={function () { setStrategySubTab(st.id); }}
+                    style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (isOn ? st.color : th.brd), background: isOn ? st.color + "10" : "transparent", color: isOn ? st.color : th.t2, cursor: "pointer", fontSize: 11, fontWeight: isOn ? 600 : 400 }}>{st.label}</button>;
+                })}
+              </div>
+              {strategySubTab === "triage" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>IMPACT VS EFFORT TRIAGE</div>
+                  <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>Issues plotted from your scoring engine — higher = more important, right = harder</div>
+                  <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
+                    <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>MONITOR</div>
+                    <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>DEPRIORITIZE</div>
+                    <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>QUICK WINS</div>
+                    <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>STRATEGIC BETS</div>
+                    <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
+                    <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
+                    <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
+                    <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
+                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>← IMPACT</div>
+                    {active.map(function (item) {
+                      var sc = engine.scores(item);
+                      var pri = engine.priority(item);
+                      var isPain = (item.itemType || "pain") === "pain";
+                      var dotC = isPain ? th.err : th.warn;
+                      var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                      var x = (sc.effort / 10) * 92 + 4;
+                      var y = (1 - sc.impact / 10) * 92 + 4;
+                      return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
+                        style={{ position: "absolute", left: x + "%", top: y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: dotC + "20", border: "2px solid " + dotC, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
+                        title={item.description + " (Impact: " + sc.impact + ", Effort: " + sc.effort + ", Priority: " + pri + ")"}>
+                        <span style={{ fontSize: 9, fontWeight: 800, color: priC, fontFamily: "monospace" }}>{pri}</span>
+                      </div>;
+                    })}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                    {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                      var isPain = (item.itemType || "pain") === "pain";
+                      var dotC = isPain ? th.err : th.warn;
+                      var pri = engine.priority(item);
+                      var sc = engine.scores(item);
+                      var quadrant = sc.impact >= 5 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
+                      var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
+                      return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: th.t2 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotC, flexShrink: 0 }} />
+                        <span style={{ fontWeight: 700, color: qC, fontFamily: "monospace" }}>{pri}</span>
+                        <span style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
+                        <Tag color={qC} style={{ fontSize: 7 }}>{quadrant}</Tag>
+                      </div>;
+                    })}
+                  </div>
+                </div>
+                {(function () {
+                  var qw = active.filter(function (i) { var sc = engine.scores(i); return sc.impact >= 5 && sc.effort < 5; });
+                  if (qw.length === 0) return null;
+                  return <div style={{ padding: 12, borderRadius: 5, background: th.ok + "06", border: "1px solid " + th.ok + "20" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 6 }}>QUICK WINS — START HERE</div>
+                    {qw.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                      var pri = engine.priority(item);
+                      var sc = engine.scores(item);
+                      return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: th.ok, fontFamily: "monospace", width: 24 }}>{pri}</span>
+                        <span style={{ fontSize: 11, color: th.t0, flex: 1 }}>{item.description || "(untitled)"}</span>
+                        <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>Impact {sc.impact} / Effort {sc.effort}</span>
+                      </div>;
+                    })}
+                  </div>;
+                })()}
+              </div>}
+              {strategySubTab === "clusters" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>SOLUTION PATTERN CLUSTERS</div>
+                <div style={{ fontSize: 10, color: th.t3, marginBottom: 4 }}>Issues grouped by GTT solution — separate problems, shared solutions</div>
+                {(function () {
+                  var patterns = {};
+                  active.forEach(function (item) {
+                    var p = item.linkedPattern || "Unassigned";
+                    if (!patterns[p]) patterns[p] = { items: [], totalCost: 0 };
+                    patterns[p].items.push(item);
+                    patterns[p].totalCost += (item.annualCost || 0);
+                  });
+                  var patternColors = { "SD-WAN": th.accent, "SASE": th.ok, "Multi-Cloud": th.orange, "Hybrid Backbone": th.cyan, "On-Demand": th.purple, "VDC Service Zone": th.warn, "Edge Compute": th.err, "Unassigned": th.t3 };
+                  return Object.keys(patterns).sort(function (a, b) { return patterns[b].items.length - patterns[a].items.length; }).map(function (pName) {
+                    var cluster = patterns[pName];
+                    var pc = patternColors[pName] || th.t3;
+                    return <div key={pName} style={{ padding: 12, borderRadius: 5, background: pc + "05", border: "1px solid " + pc + "20" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                        <Tag color={pc}>{pName}</Tag>
+                        <span style={{ fontSize: 10, color: th.t3 }}>{cluster.items.length} issue{cluster.items.length !== 1 ? "s" : ""} resolved by one solution</span>
+                        {cluster.totalCost > 0 && <span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace", marginLeft: "auto" }}>{"$" + cluster.totalCost.toLocaleString() + "/yr cost"}</span>}
+                      </div>
+                      {cluster.items.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                        var isPain = (item.itemType || "pain") === "pain";
+                        var ic = isPain ? th.err : th.warn;
+                        var pri = engine.priority(item);
+                        var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                        return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
+                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderTop: "1px solid " + pc + "10", cursor: "pointer" }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: ic, flexShrink: 0 }} />
+                          <Tag color={ic} style={{ flexShrink: 0 }}>{isPain ? "PAIN" : "CNST"}</Tag>
+                          <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
+                          {(item.annualCost || 0) > 0 && <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>{"$" + (item.annualCost || 0).toLocaleString()}</span>}
+                          <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace" }}>{pri}</span>
+                        </div>;
+                      })}
+                    </div>;
+                  });
+                })()}
+                {active.filter(function (i) { return !i.linkedPattern; }).length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.warn + "06", border: "1px solid " + th.warn + "18" }}>
+                  <div style={{ fontSize: 9, color: th.warn, fontFamily: "monospace" }}>TIP: Assign solution patterns to unassigned issues on the Assess & Capture tab (expand issue → Linked Pattern dropdown)</div>
+                </div>}
+              </div>}
+              {strategySubTab === "bizcase" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>BUSINESS CASE — COST OF INACTION</div>
+                  <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>Enter the annual cost of each issue — downtime losses, FTE overhead, contract waste, risk exposure.</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 60px 90px", gap: 6, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>ISSUE</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>ANNUAL COST</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>PRIORITY</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", textAlign: "right" }}>EST. SAVINGS</span>
+                  </div>
+                  {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                    var pri = engine.priority(item);
+                    var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                    var cost = item.annualCost || 0;
+                    var savings = Math.round(cost * 0.7);
+                    return <div key={item.id} style={{ display: "grid", gridTemplateColumns: "1fr 90px 60px 90px", gap: 6, padding: "8px 0", borderBottom: "1px solid " + th.brd, alignItems: "center" }}>
+                      <span style={{ fontSize: 11, color: th.t0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
+                        <span style={{ fontSize: 10, color: th.t3 }}>$</span>
+                        <input type="number" value={cost} onChange={function (e) { updateItem(item.id, "annualCost", Number(e.target.value) || 0); }}
+                          style={{ width: 70, padding: "3px 6px", borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.err, fontSize: 11, fontWeight: 700, fontFamily: "monospace", textAlign: "right", outline: "none" }} />
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace", textAlign: "right" }}>{pri}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: cost > 0 ? th.ok : th.t4, fontFamily: "monospace", textAlign: "right" }}>{cost > 0 ? "$" + savings.toLocaleString() : "\u2014"}</span>
+                    </div>;
+                  })}
+                  {(function () {
+                    var totalCost = active.reduce(function (a, i) { return a + (i.annualCost || 0); }, 0);
+                    var totalSavings = Math.round(totalCost * 0.7);
+                    return <div style={{ marginTop: 12, padding: 12, borderRadius: 5, background: th.inset, border: "1px solid " + th.brd }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Total annual cost of pain</span>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: totalCost > 0 ? th.err : th.t4, fontFamily: "monospace" }}>{totalCost > 0 ? "$" + totalCost.toLocaleString() : "$0"}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Estimated annual savings (70%)</span>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: totalSavings > 0 ? th.ok : th.t4, fontFamily: "monospace" }}>{totalSavings > 0 ? "$" + totalSavings.toLocaleString() : "$0"}</span>
+                      </div>
+                      {totalCost > 0 && <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", borderTop: "1px solid " + th.brd, marginTop: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: th.t2 }}>Payback period (est.)</span>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: th.accent, fontFamily: "monospace" }}>{totalSavings > 0 ? Math.max(1, Math.round(totalCost / totalSavings * 12)) + " months" : "\u2014"}</span>
+                      </div>}
+                    </div>;
+                  })()}
+                  <div style={{ fontSize: 9, color: th.t4, marginTop: 6 }}>Annual cost is editable per issue. Savings estimate assumes 70% reduction.</div>
+                </div>
+                {(function () {
+                  var patterns = {};
+                  active.forEach(function (item) {
+                    if (!item.linkedPattern) return;
+                    if (!patterns[item.linkedPattern]) patterns[item.linkedPattern] = 0;
+                    patterns[item.linkedPattern] += (item.annualCost || 0);
+                  });
+                  var keys = Object.keys(patterns).filter(function (k) { return patterns[k] > 0; });
+                  if (keys.length === 0) return null;
+                  var patternColors = { "SD-WAN": th.accent, "SASE": th.ok, "Multi-Cloud": th.orange, "Hybrid Backbone": th.cyan, "On-Demand": th.purple, "VDC Service Zone": th.warn, "Edge Compute": th.err };
+                  return <div style={{ padding: 12, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>COST BY SOLUTION PATTERN</div>
+                    {keys.sort(function (a, b) { return patterns[b] - patterns[a]; }).map(function (p) {
+                      var pc = patternColors[p] || th.t3;
+                      return <div key={p} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                        <Tag color={pc}>{p}</Tag>
+                        <div style={{ flex: 1 }}><BarFill value={patterns[p] / Math.max.apply(null, keys.map(function (k) { return patterns[k]; })) * 100} color={pc} th={th} height={6} /></div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: pc, fontFamily: "monospace" }}>{"$" + patterns[p].toLocaleString()}</span>
+                      </div>;
+                    })}
+                  </div>;
+                })()}
+              </div>}
+            </div>}
+            {active.length > 0 && <NextStep label="NEXT: AI ANALYSIS" onClick={function () { setView("ai"); setExpandedId(null); }} th={th} color={th.cyan} />}
           </div>}
 
-          {/* AI ANALYSIS — placeholder for Part 2 */}
-          {view === "ai" && <div style={{ padding: 20, textAlign: "center", color: th.t3 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", marginBottom: 8 }}>AI ANALYSIS</div>
-            <div style={{ fontSize: 11 }}>Part 2 will add traceability + resolution plan here.</div>
+          {/* AI ANALYSIS */}
+          {view === "ai" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>READINESS:</span>
+              <Tag color={overallPain > 0 ? th.ok : th.t4}>{overallPain > 0 ? "\u2713" : "\u2014"} ASSESSMENT</Tag>
+              <Tag color={activePains.length > 0 ? th.ok : th.t4}>{activePains.length > 0 ? "\u2713" : "\u2014"} {activePains.length} PAINS</Tag>
+              <Tag color={activeConstraints.length > 0 ? th.ok : th.t4}>{activeConstraints.length > 0 ? "\u2713" : "\u2014"} {activeConstraints.length} CONSTRAINTS</Tag>
+              <Tag color={active.length > 0 && overallPain > 0 ? th.ok : th.t4}>{active.length > 0 && overallPain > 0 ? "READY" : "NOT READY"}</Tag>
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button onClick={function () { setAiSubTab("trace"); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (aiSubTab === "trace" ? th.purple : th.brd), background: aiSubTab === "trace" ? th.purple + "10" : "transparent", color: aiSubTab === "trace" ? th.purple : th.t2, cursor: "pointer", fontSize: 11, fontWeight: aiSubTab === "trace" ? 600 : 400 }}>Traceability Matrix</button>
+              <button onClick={function () { setAiSubTab("resolve"); }} style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (aiSubTab === "resolve" ? th.cyan : th.brd), background: aiSubTab === "resolve" ? th.cyan + "10" : "transparent", color: aiSubTab === "resolve" ? th.cyan : th.t2, cursor: "pointer", fontSize: 11, fontWeight: aiSubTab === "resolve" ? 600 : 400 }}>Resolution Plan</button>
+            </div>
+            {(active.length === 0 || overallPain === 0) && <div style={{ padding: 20, borderRadius: 6, textAlign: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 6 }}>COMPLETE ASSESSMENT FIRST</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto" }}>The AI needs assessment scores and at least one issue to generate analysis.</div>
+              <div style={{ marginTop: 10 }}>
+                <button onClick={function () { setView("assess"); }} style={{ padding: "6px 14px", borderRadius: 4, border: "1px solid " + th.accent + "30", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>Go to Assess & Capture →</button>
+              </div>
+            </div>}
+            {aiSubTab === "trace" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: th.purple, fontFamily: "monospace" }}>AI-DRIVEN TRACEABILITY MATRIX</span>
+                <button onClick={runAiTrace} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
+              </div>
+              <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Sends assessment ({overallPain}/100), {activePains.length} pains, {activeConstraints.length} constraints to AI for GTT solution mapping.</div>
+                {!aiTrace && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Traceability" to map {active.length} items to GTT solutions</div>}
+                {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.accent, fontSize: 11 }}>Analyzing and mapping to GTT solutions...</div>}
+                {aiTrace && <div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "4px 0", borderBottom: "1px solid " + th.brd, marginBottom: 4 }}>{["ISSUE", "GTT PATTERN", "RESOLUTION", "PRIORITY", "PH"].map(function (h) { return <span key={h} style={{ fontSize: 7, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>{h}</span>; })}</div>
+                  {aiTrace.map(function (r, i) { var pc = { critical: th.err, high: th.warn, medium: th.accent, low: th.ok }; return <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 60px 40px", gap: 2, padding: "6px 0", borderBottom: "1px solid " + th.brd, alignItems: "start" }}><span style={{ fontSize: 10, color: th.t0 }}>{r.painSummary}</span><Tag color={th.accent}>{r.gttPattern}</Tag><span style={{ fontSize: 10, color: th.t2 }}>{r.resolution}</span><Tag color={pc[r.priority] || th.t3}>{r.priority}</Tag><Tag color={th.t3}>P{r.phase}</Tag></div>; })}
+                </div>}
+              </div>
+            </div>}
+            {aiSubTab === "resolve" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: th.cyan, fontFamily: "monospace" }}>AI-DRIVEN RESOLUTION PLAN</span>
+                <button onClick={runAiResolve} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
+              </div>
+              <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Generates phased plan with GTT products addressing pain intensity of {overallPain}/100 across {active.length} issues.</div>
+                {!aiResolution && !aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.t3, fontSize: 11 }}>Ready — click "Generate Resolution Plan" to create phased roadmap for {active.length} issues</div>}
+                {aiLoading && <div style={{ padding: 20, textAlign: "center", color: th.cyan, fontSize: 11 }}>Building phased resolution plan...</div>}
+                {aiResolution && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {aiResolution.quickWins && aiResolution.quickWins.length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.ok + "08", border: "1px solid " + th.ok + "22" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 4 }}>QUICK WINS</div>
+                    {aiResolution.quickWins.map(function (q, i) { return <div key={i} style={{ fontSize: 10, color: th.t0, padding: "2px 0" }}>✓ {q}</div>; })}
+                  </div>}
+                  {(aiResolution.phases || []).map(function (ph) { var pc = [th.accent, th.purple, th.ok]; return <div key={ph.phase} style={{ padding: 12, borderRadius: 5, background: (pc[ph.phase - 1] || th.t3) + "05", border: "1px solid " + (pc[ph.phase - 1] || th.t3) + "20" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}><Tag color={pc[ph.phase - 1] || th.t3}>PHASE {ph.phase}</Tag><span style={{ fontSize: 12, fontWeight: 700, color: th.t0 }}>{ph.title}</span><span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>{ph.duration}</span></div>
+                    {(ph.actions || []).map(function (a, ai) { return <div key={ai} style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr 1fr", gap: 6, padding: "6px 0", borderTop: ai > 0 ? "1px solid " + th.brd : "none" }}><span style={{ fontSize: 10, color: th.t0 }}>{a.action}</span><Tag color={th.accent}>{a.gttProduct}</Tag><span style={{ fontSize: 9, color: th.t2 }}>{a.painAddressed}</span><span style={{ fontSize: 9, color: th.ok }}>{a.expectedImpact}</span></div>; })}
+                  </div>; })}
+                  {aiResolution.risks && aiResolution.risks.length > 0 && <div style={{ padding: 10, borderRadius: 4, background: th.err + "06", border: "1px solid " + th.err + "20" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.err, fontFamily: "monospace", marginBottom: 4 }}>RISKS</div>
+                    {aiResolution.risks.map(function (r, i) { return <div key={i} style={{ fontSize: 10, color: th.t1, padding: "2px 0" }}>⚠ {r}</div>; })}
+                  </div>}
+                </div>}
+              </div>
+            </div>}
           </div>}
         </div>
       </div>
