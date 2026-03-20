@@ -471,6 +471,7 @@ export default function PainEngine() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
           <EditField label="Resolution" value={item.resolution} onChange={function(v){updateItem(item.id,"resolution",v)}} th={th} type="textarea" placeholder="How resolved..." />
           <EditField label="Target Date" value={item.targetDate} onChange={function(v){updateItem(item.id,"targetDate",v)}} th={th} placeholder="YYYY-MM-DD" />
+          <EditField label="Annual Cost ($)" value={item.annualCost} onChange={function(v){updateItem(item.id,"annualCost",v)}} th={th} type="number" />
         </div>
       </div>}
     </div>;
@@ -615,22 +616,12 @@ export default function PainEngine() {
                       {isMetricOff && <div style={{ height: 20, display: "flex", alignItems: "center" }}><span style={{ fontSize: 9, color: th.t4, fontFamily: "monospace" }}>EXCLUDED FROM SCORING</span></div>}
                       {!isMetricOff && (function () {
                         var metricItems = active.filter(function (it) { return it.linkedMetrics && it.linkedMetrics.indexOf(m.key) !== -1; });
-                        return <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
-                          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                            {metricItems.map(function (it) {
-                              var isPn = (it.itemType || "pain") === "pain";
-                              var itC = isPn ? th.err : th.warn;
-                              var pri = engine.priority(it);
-                              var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
-                              return <span key={it.id} onClick={function () { setExpandedId(expandedId === it.id ? null : it.id); }}
-                                style={{ fontSize: 8, padding: "1px 6px", borderRadius: 3, background: itC + "08", border: "1px solid " + itC + "15", color: th.t2, cursor: "pointer", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                                <span style={{ fontSize: 8, fontWeight: 700, color: priC, fontFamily: "monospace" }}>{pri}</span>
-                                {it.description ? (it.description.length > 25 ? it.description.substring(0, 25) + "…" : it.description) : "(untitled)"}
-                              </span>;
-                            })}
-                          </div>
+                        return <div style={{ marginTop: 4 }}>
+                          {metricItems.map(function (it) { return renderInlineItem(it); })}
                           <button onClick={function (e) { e.stopPropagation(); addItem("pain", group.group, m.key); }}
-                            style={{ fontSize: 8, padding: "2px 6px", borderRadius: 3, border: "1px dashed " + th.accent + "40", background: "transparent", color: th.accent, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>+ issue</button>
+                            style={{ display: "flex", alignItems: "center", gap: 4, width: "100%", padding: "4px 10px", borderRadius: 4, border: "1px dashed " + th.accent + "30", background: "transparent", color: th.accent, cursor: "pointer", fontSize: 9, fontWeight: 500, marginTop: 4 }}>
+                            <span style={{ fontSize: 12, lineHeight: "12px" }}>+</span> Add issue for {m.label}
+                          </button>
                         </div>;
                       })()}
                     </div>;
