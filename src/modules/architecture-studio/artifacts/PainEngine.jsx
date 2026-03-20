@@ -724,98 +724,84 @@ export default function PainEngine() {
                     style={{ padding: "5px 12px", borderRadius: 4, border: "1px solid " + (isOn ? st.color : th.brd), background: isOn ? st.color + "10" : "transparent", color: isOn ? st.color : th.t2, cursor: "pointer", fontSize: 11, fontWeight: isOn ? 600 : 400 }}>{st.label}</button>;
                 })}
               </div>
-              {strategySubTab === "triage" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>IMPACT VS EFFORT TRIAGE</div>
-                  <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>Issues plotted from your scoring engine — higher = more important, right = harder</div>
-                  <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
-                    <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>MONITOR</div>
-                    <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace", textAlign: "center" }}>DEPRIORITIZE</div>
-                    <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>QUICK WINS</div>
-                    <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700, textAlign: "center" }}>STRATEGIC BETS</div>
-                    <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
-                    <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
-                    <div style={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
-                    <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
-                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>PRIORITY ↑</div>
-                    {active.map(function (item) {
-                      var sc = engine.scores(item);
-                      var pri = engine.priority(item);
-                      var isPain = (item.itemType || "pain") === "pain";
-                      var dotC = isPain ? th.err : th.warn;
-                      var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
-                      var x = (sc.effort / 10) * 92 + 4;
-                      var y = (1 - pri / 100) * 92 + 4;
-                      return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
-                        style={{ position: "absolute", left: x + "%", top: y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: dotC + "20", border: "2px solid " + dotC, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
-                        title={item.description + " (Priority: " + pri + ", Effort: " + sc.effort + ", Impact: " + sc.impact + ")"}>
-                        <span style={{ fontSize: 9, fontWeight: 800, color: priC, fontFamily: "monospace" }}>{pri}</span>
-                      </div>;
-                    })}
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-                    {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
-                      var isPain = (item.itemType || "pain") === "pain";
-                      var dotC = isPain ? th.err : th.warn;
-                      var pri = engine.priority(item);
-                      var sc = engine.scores(item);
-                      var quadrant = pri >= 50 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
-                      var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
-                      return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: th.t2 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotC, flexShrink: 0 }} />
-                        <span style={{ fontWeight: 700, color: qC, fontFamily: "monospace" }}>{pri}</span>
-                        <span style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
-                        <Tag color={qC} style={{ fontSize: 7 }}>{quadrant}</Tag>
-                      </div>;
-                    })}
-                  </div>
-                </div>
-                {(function () {
-                  var qw = active.filter(function (i) { var s = engine.scores(i); var p = engine.priority(i); return p >= 50 && s.effort < 5; });
-                  if (qw.length === 0) return null;
-                  return <div style={{ padding: 12, borderRadius: 5, background: th.ok + "06", border: "1px solid " + th.ok + "20" }}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 6 }}>QUICK WINS — START HERE</div>
-                    {qw.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
-                      var pri = engine.priority(item);
-                      var sc = engine.scores(item);
-                      return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: th.ok, fontFamily: "monospace", width: 24 }}>{pri}</span>
-                        <span style={{ fontSize: 11, color: th.t0, flex: 1 }}>{item.description || "(untitled)"}</span>
-                        <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>Impact {sc.impact} / Effort {sc.effort}</span>
-                      </div>;
-                    })}
-                  </div>;
-                })()}
-              </div>}
-              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.warn, fontFamily: "monospace", marginBottom: 4 }}>ADJUST EFFORT — REPOSITION ON MATRIX</div>
-                <div style={{ fontSize: 10, color: th.t3, marginBottom: 8 }}>Change effort to move items left (easier) or right (harder) on the triage matrix above.</div>
-                {active.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+              {strategySubTab === "triage" && (function () {
+                var triageItems = active.slice().map(function (item) {
                   var sc = engine.scores(item);
                   var pri = engine.priority(item);
-                  var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
                   var isPain = (item.itemType || "pain") === "pain";
-                  var ac = isPain ? th.err : th.warn;
-                  var effC = sc.effort >= 7 ? th.err : sc.effort >= 4 ? th.warn : th.ok;
+                  var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
                   var quadrant = pri >= 50 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
-                  var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
-                  return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: ac, flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</span>
-                    <Tag color={qC} style={{ fontSize: 7 }}>{quadrant}</Tag>
-                    <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>IMP {sc.impact}</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                      <span style={{ fontSize: 8, color: th.warn, fontFamily: "monospace" }}>EFF</span>
-                      <button onClick={function () { updateItem(item.id, "manualEffort", Math.max(1, sc.effort - 1)); }}
-                        style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: effC, fontFamily: "monospace", minWidth: 16, textAlign: "center" }}>{sc.effort}</span>
-                      <button onClick={function () { updateItem(item.id, "manualEffort", Math.min(10, sc.effort + 1)); }}
-                        style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                  var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : quadrant === "MONITOR" ? th.accent : th.t4;
+                  return { item: item, sc: sc, pri: pri, isPain: isPain, priC: priC, quadrant: quadrant, qC: qC, ac: isPain ? th.err : th.warn, x: (sc.effort / 10) * 92 + 4, y: (1 - pri / 100) * 92 + 4 };
+                });
+                var quickWins = triageItems.filter(function (t) { return t.quadrant === "QUICK WIN"; }).sort(function (a, b) { return b.pri - a.pri; });
+                var sortedByPri = triageItems.slice().sort(function (a, b) { return b.pri - a.pri; });
+                return <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>PRIORITY VS EFFORT TRIAGE</div>
+                    <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>{triageItems.length} issues plotted — higher priority at bottom, harder effort to the right</div>
+                    <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
+                      <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>MONITOR</div>
+                      <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>DEPRIORITIZE</div>
+                      <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700 }}>QUICK WINS</div>
+                      <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700 }}>STRATEGIC BETS</div>
+                      <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
+                      <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
+                      <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
+                      <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
+                      <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>← PRIORITY</div>
+                      {triageItems.map(function (t) {
+                        return <div key={t.item.id} onClick={function () { setView("assess"); setExpandedId(t.item.id); }}
+                          style={{ position: "absolute", left: t.x + "%", top: t.y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: t.ac + "20", border: "2px solid " + t.ac, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
+                          title={t.item.description + " (Priority: " + t.pri + ", Effort: " + t.sc.effort + ", Impact: " + t.sc.impact + ")"}>
+                          <span style={{ fontSize: 9, fontWeight: 800, color: t.priC, fontFamily: "monospace" }}>{t.pri}</span>
+                        </div>;
+                      })}
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: priC, fontFamily: "monospace", width: 20, textAlign: "right" }}>{pri}</span>
-                  </div>;
-                })}
-              </div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                      {sortedByPri.map(function (t) {
+                        return <div key={t.item.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: th.t2 }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.ac, flexShrink: 0 }} />
+                          <span style={{ fontWeight: 700, color: t.qC, fontFamily: "monospace" }}>{t.pri}</span>
+                          <span style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.item.description || "(untitled)"}</span>
+                          <Tag color={t.qC} style={{ fontSize: 7 }}>{t.quadrant}</Tag>
+                        </div>;
+                      })}
+                    </div>
+                  </div>
+                  {quickWins.length > 0 && <div style={{ padding: 12, borderRadius: 5, background: th.ok + "06", border: "1px solid " + th.ok + "20" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 6 }}>QUICK WINS — {quickWins.length} ITEM{quickWins.length !== 1 ? "S" : ""} — START HERE</div>
+                    {quickWins.map(function (t) {
+                      return <div key={t.item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0" }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: th.ok, fontFamily: "monospace", width: 24 }}>{t.pri}</span>
+                        <span style={{ fontSize: 11, color: th.t0, flex: 1 }}>{t.item.description || "(untitled)"}</span>
+                        <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>Effort {t.sc.effort}</span>
+                      </div>;
+                    })}
+                  </div>}
+                  <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: th.warn, fontFamily: "monospace", marginBottom: 4 }}>ADJUST EFFORT — {sortedByPri.length} ITEMS — REPOSITION ON MATRIX</div>
+                    <div style={{ fontSize: 10, color: th.t3, marginBottom: 8 }}>Change effort to move items left (easier) or right (harder). Priority and quadrant update in real time.</div>
+                    {sortedByPri.map(function (t) {
+                      var effC = t.sc.effort >= 7 ? th.err : t.sc.effort >= 4 ? th.warn : th.ok;
+                      return <div key={t.item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.ac, flexShrink: 0 }} />
+                        <span style={{ fontSize: 11, color: th.t0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.item.description || "(untitled)"}</span>
+                        <Tag color={t.qC} style={{ fontSize: 7 }}>{t.quadrant}</Tag>
+                        <span style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>PRI {t.pri}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                          <span style={{ fontSize: 8, color: th.warn, fontFamily: "monospace" }}>EFF</span>
+                          <button onClick={function () { updateItem(t.item.id, "manualEffort", Math.max(1, t.sc.effort - 1)); }}
+                            style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: effC, fontFamily: "monospace", minWidth: 16, textAlign: "center" }}>{t.sc.effort}</span>
+                          <button onClick={function () { updateItem(t.item.id, "manualEffort", Math.min(10, t.sc.effort + 1)); }}
+                            style={{ width: 18, height: 18, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 11, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                        </div>
+                      </div>;
+                    })}
+                  </div>
+                </div>;
+              })()}
               {strategySubTab === "clusters" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace" }}>SOLUTION PATTERN CLUSTERS</div>
                 <div style={{ fontSize: 10, color: th.t3, marginBottom: 4 }}>Issues grouped by GTT solution — separate problems, shared solutions</div>
@@ -835,7 +821,7 @@ export default function PainEngine() {
                         <Tag color={pc}>{pName}</Tag>
                         <span style={{ fontSize: 10, color: th.t3 }}>{cluster.items.length} issue{cluster.items.length !== 1 ? "s" : ""} resolved by one solution</span>
                       </div>
-                      {cluster.items.sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
+                      {cluster.items.slice().sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item) {
                         var isPain = (item.itemType || "pain") === "pain";
                         var ic = isPain ? th.err : th.warn;
                         var pri = engine.priority(item);
