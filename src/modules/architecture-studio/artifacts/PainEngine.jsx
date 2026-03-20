@@ -113,8 +113,9 @@ var MOCK_ITEMS = [
   { id: "demo8", itemType: "pain", category: "Threat", severity: "high", description: "72+ hour mean time to detect threats — no centralized SIEM", sites: "All", impact: "Risk — last 2 incidents found by third parties", owner: "Security Team", status: "open", resolution: "", targetDate: "", linkedPattern: "SASE", traceability: "Detection → Integrated analytics + managed SOC", linkedMetrics: ["threatDetectionGaps", "threatSurfaceExposure"], manualImpact: null, manualLikelihood: null, manualEffort: 8, manualUrgency: 9, annualCost: 0, domain: "Security", enabled: true },
   { id: "demo9", itemType: "constraint", category: "Contractual", severity: "high", description: "BT MPLS contract locked until Q3 2026 — £85K early termination", sites: "London HQ, Frankfurt DC", impact: "Financial — constrains migration timeline", owner: "Procurement", status: "open", resolution: "", targetDate: "2026-09-30", linkedPattern: "", traceability: "Migration dependency", linkedMetrics: ["carrierSprawl"], manualImpact: 8, manualLikelihood: 10, manualEffort: 2, manualUrgency: 7, annualCost: 85000, domain: "Vendor", enabled: true },
   { id: "demo10", itemType: "constraint", category: "Compliance", severity: "high", description: "GDPR data residency — EU traffic must not traverse non-EU nodes", sites: "All EMEA", impact: "Architecture — constrains routing and DC placement", owner: "Legal / Security", status: "open", resolution: "", targetDate: "", linkedPattern: "VDC Service Zone", traceability: "Compliance → EU-resident VDC service zones", linkedMetrics: ["dataProtectionBurden", "securityPolicyInconsistency"], manualImpact: 9, manualLikelihood: 10, manualEffort: 6, manualUrgency: 10, annualCost: 0, domain: "Security", enabled: true },
-  { id: "demo11", itemType: "constraint", category: "Operational", severity: "medium", description: "IT headcount frozen 12 months — must use managed service model", sites: "All", impact: "Operational — cannot absorb new platforms", owner: "CTO Office", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Governance → Fully managed delivery", linkedMetrics: ["manualOps", "ticketVolume"], manualImpact: null, manualLikelihood: 10, manualEffort: 8, manualUrgency: null, annualCost: 0, domain: "Operations", enabled: true },
-  { id: "demo12", itemType: "constraint", category: "Vendor", severity: "medium", description: "Zscaler ZIA 100 seats active until mid-2026 — pre-commits SASE vendor", sites: "Global remote", impact: "Architecture — shapes vendor shortlist", owner: "Security Team", status: "open", resolution: "", targetDate: "2026-06-30", linkedPattern: "SASE", traceability: "Existing investment input", linkedMetrics: ["vendorSLA"], manualImpact: 5, manualLikelihood: 10, manualEffort: 3, manualUrgency: null, annualCost: 40000, domain: "Vendor", enabled: true }
+  { id: "demo11", itemType: "constraint", category: "Operational", severity: "medium", description: "IT headcount frozen 12 months — must use managed service model", sites: "All", impact: "Operational — cannot absorb new platforms", owner: "CTO Office", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Governance → Fully managed delivery", linkedMetrics: ["manualOps", "ticketVolume"], manualImpact: 4, manualLikelihood: 5, manualEffort: 9, manualUrgency: 3, annualCost: 0, domain: "Operations", enabled: true },
+  { id: "demo12", itemType: "constraint", category: "Vendor", severity: "medium", description: "Zscaler ZIA 100 seats active until mid-2026 — pre-commits SASE vendor", sites: "Global remote", impact: "Architecture — shapes vendor shortlist", owner: "Security Team", status: "open", resolution: "", targetDate: "2026-06-30", linkedPattern: "SASE", traceability: "Existing investment input", linkedMetrics: ["vendorSLA"], manualImpact: 3, manualLikelihood: 5, manualEffort: 3, manualUrgency: 3, annualCost: 40000, domain: "Vendor", enabled: true },
+  { id: "demo13", itemType: "pain", category: "Vendor", severity: "low", description: "Quarterly SLA reports from 2 providers delivered in PDF only — manual data entry", sites: "All", impact: "Operational — 4 hours/quarter manual work", owner: "Network Ops", status: "open", resolution: "", targetDate: "", linkedPattern: "", traceability: "Operational — automate when convenient", linkedMetrics: ["vendorSLA"], manualImpact: 3, manualLikelihood: 3, manualEffort: 4, manualUrgency: 2, annualCost: 5000, domain: "Vendor", enabled: true }
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -736,7 +737,7 @@ export default function PainEngine() {
                     <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
                     <div style={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
                     <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
-                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>IMPACT ↑</div>
+                    <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>PRIORITY ↑</div>
                     {active.map(function (item) {
                       var sc = engine.scores(item);
                       var pri = engine.priority(item);
@@ -744,10 +745,10 @@ export default function PainEngine() {
                       var dotC = isPain ? th.err : th.warn;
                       var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
                       var x = (sc.effort / 10) * 92 + 4;
-                      var y = (1 - sc.impact / 10) * 92 + 4;
+                      var y = (1 - pri / 100) * 92 + 4;
                       return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
                         style={{ position: "absolute", left: x + "%", top: y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: dotC + "20", border: "2px solid " + dotC, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
-                        title={item.description + " (Impact: " + sc.impact + ", Effort: " + sc.effort + ", Priority: " + pri + ")"}>
+                        title={item.description + " (Priority: " + pri + ", Effort: " + sc.effort + ", Impact: " + sc.impact + ")"}>
                         <span style={{ fontSize: 9, fontWeight: 800, color: priC, fontFamily: "monospace" }}>{pri}</span>
                       </div>;
                     })}
@@ -758,7 +759,7 @@ export default function PainEngine() {
                       var dotC = isPain ? th.err : th.warn;
                       var pri = engine.priority(item);
                       var sc = engine.scores(item);
-                      var quadrant = sc.impact >= 5 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
+                      var quadrant = pri >= 50 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
                       var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
                       return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9, color: th.t2 }}>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: dotC, flexShrink: 0 }} />
@@ -770,7 +771,7 @@ export default function PainEngine() {
                   </div>
                 </div>
                 {(function () {
-                  var qw = active.filter(function (i) { var sc = engine.scores(i); return sc.impact >= 5 && sc.effort < 5; });
+                  var qw = active.filter(function (i) { var s = engine.scores(i); var p = engine.priority(i); return p >= 50 && s.effort < 5; });
                   if (qw.length === 0) return null;
                   return <div style={{ padding: 12, borderRadius: 5, background: th.ok + "06", border: "1px solid " + th.ok + "20" }}>
                     <div style={{ fontSize: 9, fontWeight: 700, color: th.ok, fontFamily: "monospace", marginBottom: 6 }}>QUICK WINS — START HERE</div>
@@ -796,7 +797,7 @@ export default function PainEngine() {
                   var isPain = (item.itemType || "pain") === "pain";
                   var ac = isPain ? th.err : th.warn;
                   var effC = sc.effort >= 7 ? th.err : sc.effort >= 4 ? th.warn : th.ok;
-                  var quadrant = sc.impact >= 5 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
+                  var quadrant = pri >= 50 ? (sc.effort < 5 ? "QUICK WIN" : "STRATEGIC") : (sc.effort < 5 ? "MONITOR" : "DEPRIORITIZE");
                   var qC = quadrant === "QUICK WIN" ? th.ok : quadrant === "STRATEGIC" ? th.warn : th.t4;
                   return <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid " + th.brd }}>
                     <span style={{ width: 6, height: 6, borderRadius: "50%", background: ac, flexShrink: 0 }} />
