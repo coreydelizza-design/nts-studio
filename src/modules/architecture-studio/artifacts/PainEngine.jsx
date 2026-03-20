@@ -121,8 +121,8 @@ var MOCK_ITEMS = [
 // ═══════════════════════════════════════════════════════
 // UI PRIMITIVES
 // ═══════════════════════════════════════════════════════
-function Tag({ children, color, style }) {
-  return <span style={{
+function Tag({ children, color, style, title }) {
+  return <span title={title} style={{
     display: "inline-flex", alignItems: "center", padding: "1px 6px", borderRadius: 3,
     fontSize: 9, fontWeight: 600, fontFamily: "monospace", letterSpacing: 0.4,
     background: color + "18", color: color, border: "1px solid " + color + "30",
@@ -432,7 +432,7 @@ export default function PainEngine() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ fontSize: 8, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>{label}</span>
-            <span style={{ fontSize: 7, padding: "0 4px", borderRadius: 2, fontFamily: "monospace", fontWeight: 600, background: isM ? th.warn + "20" : th.cyan + "20", color: isM ? th.warn : th.cyan }}>{isM ? "OVERRIDE" : "FROM ASSESSMENT"}</span>
+            <span style={{ fontSize: 7, padding: "0 4px", borderRadius: 2, fontFamily: "monospace", fontWeight: 600, background: isM ? th.warn + "20" : th.cyan + "20", color: isM ? th.warn : th.cyan }} title={isM ? "Manually set \u2014 click RESET to return to auto-derived" : "Auto-calculated from linked assessment metrics"}>{isM ? "OVERRIDE" : "FROM ASSESSMENT"}</span>
           </div>
           {isM && <button onClick={function (e) { e.stopPropagation(); updateItem(item.id, manualField, null); }} style={{ fontSize: 7, padding: "1px 5px", borderRadius: 2, border: "1px solid " + th.cyan + "40", background: th.cyan + "10", color: th.cyan, cursor: "pointer", fontFamily: "monospace", fontWeight: 600 }}>RESET</button>}
         </div>
@@ -459,14 +459,14 @@ export default function PainEngine() {
         </span>
         {item.linkedPattern && <Tag color={th.accent}>{item.linkedPattern}</Tag>}
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          {[{ l: "IMP", v: sc.impact }, { l: "URG", v: sc.urgency }].map(function (d) {
+          {[{ l: "IMP", v: sc.impact, tip: "Impact: " + sc.impact + "/10 \u2014 from linked metrics" + (sc.impactSrc === "manual" ? " (overridden)" : "") }, { l: "URG", v: sc.urgency, tip: "Urgency: " + sc.urgency + "/10 \u2014 from assessment + severity" + (sc.urgencySrc === "manual" ? " (overridden)" : "") }].map(function (d) {
             var c2 = d.v >= 7 ? th.err : d.v >= 4 ? th.warn : th.ok;
-            return <div key={d.l} style={{ textAlign: "center" }}>
+            return <div key={d.l} style={{ textAlign: "center" }} title={d.tip}>
               <div style={{ fontSize: 7, color: th.t4, fontFamily: "monospace" }}>{d.l}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: c2, fontFamily: "monospace" }}>{d.v}</div>
             </div>;
           })}
-          <div style={{ textAlign: "center" }} onClick={function (e) { e.stopPropagation(); }}>
+          <div style={{ textAlign: "center" }} onClick={function (e) { e.stopPropagation(); }} title="Effort to resolve: 1 = trivial, 10 = major project">
             <div style={{ fontSize: 7, color: th.warn, fontFamily: "monospace", fontWeight: 600 }}>EFF</div>
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               <button onClick={function (e) { e.stopPropagation(); updateItem(item.id, "manualEffort", Math.max(1, (sc.effort || 5) - 1)); }}
@@ -476,13 +476,13 @@ export default function PainEngine() {
                 style={{ width: 14, height: 14, borderRadius: 3, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 10, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
             </div>
           </div>
-          <div style={{ width: 30, height: 24, borderRadius: 4, background: priC + "18", border: "1px solid " + priC + "35", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 30, height: 24, borderRadius: 4, background: priC + "18", border: "1px solid " + priC + "35", display: "flex", alignItems: "center", justifyContent: "center" }} title={"Priority " + pri + "/100"}>
             <span style={{ fontSize: 12, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</span>
           </div>
         </div></div>
         <button onClick={function (e) { e.stopPropagation(); deleteItem(item.id); }}
           style={{ width: 20, height: 20, borderRadius: 4, border: "none", background: "transparent", color: th.t4, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, fontSize: 11 }}
-          title="Delete issue">
+          title="Delete this issue permanently">
           ✕
         </button>
       </div>
@@ -491,7 +491,7 @@ export default function PainEngine() {
       {isExpanded && <div style={{ padding: 12, borderRadius: "0 0 5px 5px", background: th.inset, border: "1px solid " + th.accent + "30", borderTop: "none" }}>
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 8, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 2 }}>SCORING ENGINE</div>
-          <div style={{ fontSize: 8, color: th.t3, marginBottom: 6, lineHeight: 1.4 }}>Scores cascade from the assessment sliders above. Click any slider to override. RESET returns to auto.</div>
+          <div style={{ fontSize: 8, color: th.t3, marginBottom: 6, lineHeight: 1.4 }}>Impact, Likelihood, and Urgency auto-derive from linked metrics above. Override any score by moving its slider. Effort is always manual \u2014 it measures implementation complexity, not pain severity.</div>
           {item.linkedMetrics && item.linkedMetrics.length > 0 && <div style={{ padding: "6px 8px", borderRadius: 4, background: th.cyan + "06", border: "1px solid " + th.cyan + "18", marginBottom: 8 }}>
             <div style={{ fontSize: 7, fontWeight: 700, color: th.cyan, fontFamily: "monospace", marginBottom: 6 }}>LINKED ASSESSMENT METRICS — adjust to rescore</div>
             {item.linkedMetrics.map(function (k) {
@@ -508,14 +508,14 @@ export default function PainEngine() {
             })}
           </div>}
           <div style={{ padding: 8, borderRadius: 4, background: th.warn + "06", border: "1px solid " + th.warn + "15", marginBottom: 6 }}>
-            <div style={{ fontSize: 8, color: th.t3, marginBottom: 4 }}>Set effort based on implementation complexity — this determines triage positioning</div>
+            <div style={{ fontSize: 8, color: th.t3, marginBottom: 4 }}>How complex is the fix? 1 = quick change, 10 = major project. This determines triage positioning — this determines triage positioning</div>
             {(item.manualEffort === null || item.manualEffort === undefined) && <div style={{ padding: "6px 8px", borderRadius: 4, background: th.warn + "08", border: "1px solid " + th.warn + "18", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 9, color: th.warn, fontFamily: "monospace", fontWeight: 600 }}>SET EFFORT — ask: "How hard is this to fix?"</span></div>}
             {scoreSlider("EFFORT TO RESOLVE", "effort", "manualEffort", sc.effort, sc.effortSrc)}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            <div>{scoreSlider("BUSINESS IMPACT", "impact", "manualImpact", sc.impact, sc.impactSrc)}</div>
-            <div>{scoreSlider("LIKELIHOOD", "likelihood", "manualLikelihood", sc.likelihood, sc.likelihoodSrc)}</div>
-            <div>{scoreSlider("URGENCY", "urgency", "manualUrgency", sc.urgency, sc.urgencySrc)}</div>
+            <div><div style={{ fontSize: 8, color: th.t4, marginBottom: 2 }}>How severely does this affect the business?</div>{scoreSlider("BUSINESS IMPACT", "impact", "manualImpact", sc.impact, sc.impactSrc)}</div>
+            <div><div style={{ fontSize: 8, color: th.t4, marginBottom: 2 }}>How likely is this to occur or persist?</div>{scoreSlider("LIKELIHOOD", "likelihood", "manualLikelihood", sc.likelihood, sc.likelihoodSrc)}</div>
+            <div><div style={{ fontSize: 8, color: th.t4, marginBottom: 2 }}>How soon does this need to be addressed?</div>{scoreSlider("URGENCY", "urgency", "manualUrgency", sc.urgency, sc.urgencySrc)}</div>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0 0", borderTop: "1px solid " + th.brd }}>
             <span style={{ fontSize: 9, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>PRIORITY</span>
@@ -564,8 +564,8 @@ export default function PainEngine() {
           <div style={{ fontSize: 8, color: th.t3, fontFamily: "monospace", letterSpacing: 0.5 }}>ARCHITECTURE STUDIO MODULE</div>
         </div>
         <div style={{ width: 1, height: 20, background: th.brd }} />
-        <Tag color={overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4}>PAIN: {overallPain}/100</Tag>
-        <Tag color={th.accent}>{active.length} ACTIVE</Tag>
+        <Tag color={overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4} title="Average of all enabled assessment metrics, scaled to 0-100">PAIN: {overallPain}/100</Tag>
+        <Tag color={th.accent} title="Total enabled issues (pains + constraints) currently in scope">{active.length} ACTIVE</Tag>
       </div>
       <button onClick={function () { if (demoMode) { clearDemoData(); } else { loadDemoData(); } }}
         style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid " + (demoMode ? th.warn + "60" : th.accent + "40"), background: demoMode ? th.warn + "12" : th.accent + "08", color: demoMode ? th.warn : th.accent, cursor: "pointer", fontSize: 9, fontWeight: 700, fontFamily: "monospace", letterSpacing: 0.5 }}>
@@ -602,7 +602,7 @@ export default function PainEngine() {
                     var tileC = isOff ? th.t4 : (g.avg > 0 ? (g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok) : th.t4);
                     return <div key={g.group} onClick={function () { toggleDomain(g.group); }}
                       style={{ flex: "1 1 80px", padding: "8px 10px", borderRadius: 4, background: tileC + "08", textAlign: "center", opacity: isOff ? 0.35 : 1, cursor: "pointer", position: "relative" }}
-                      title={isOff ? "Enable " + g.group : "Disable " + g.group}>
+                      title={isOff ? g.group + " excluded \u2014 click to re-enable" : g.group + ": " + g.avg + "/100 severity \u2014 click to toggle scope"}>
                       <div style={{ fontSize: 14 }}>{g.icon}</div>
                       <div style={{ fontSize: 18, fontWeight: 900, color: tileC, fontFamily: "monospace", textDecoration: isOff ? "line-through" : "none" }}>{isOff ? "\u2014" : g.avg}</div>
                       <div style={{ fontSize: 8, fontWeight: 600, color: isOff ? th.t4 : th.t2 }}>{g.group}</div>
@@ -741,10 +741,10 @@ export default function PainEngine() {
                     <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>PRIORITY VS EFFORT TRIAGE</div>
                     <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>{triageItems.length} issues plotted — high priority at top, high effort to the right</div>
                     <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
-                      <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700 }}>QUICK WINS</div>
-                      <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700 }}>STRATEGIC BETS</div>
-                      <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>MONITOR</div>
-                      <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>DEPRIORITIZE</div>
+                      <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700 }} title="High priority + low effort \u2014 start these immediately">QUICK WINS</div>
+                      <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700 }} title="High priority + high effort \u2014 needs a project plan">STRATEGIC BETS</div>
+                      <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }} title="Low priority + low effort \u2014 revisit next quarter">MONITOR</div>
+                      <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }} title="Low priority + high effort \u2014 not worth the investment now">DEPRIORITIZE</div>
                       <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
                       <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
                       <div style={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
@@ -849,7 +849,8 @@ export default function PainEngine() {
           {/* AI ANALYSIS */}
           {view === "ai" && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>READINESS:</span>
+              <div style={{ fontSize: 10, color: th.t3, marginBottom: 4 }}>AI analysis requires assessment scores and at least one issue to generate recommendations.</div>
+            <span style={{ fontSize: 10, fontWeight: 600, color: th.t3, fontFamily: "monospace" }}>READINESS:</span>
               <Tag color={overallPain > 0 ? th.ok : th.t4}>{overallPain > 0 ? "\u2713" : "\u2014"} ASSESSMENT</Tag>
               <Tag color={activePains.length > 0 ? th.ok : th.t4}>{activePains.length > 0 ? "\u2713" : "\u2014"} {activePains.length} PAINS</Tag>
               <Tag color={activeConstraints.length > 0 ? th.ok : th.t4}>{activeConstraints.length > 0 ? "\u2713" : "\u2014"} {activeConstraints.length} CONSTRAINTS</Tag>
@@ -869,7 +870,7 @@ export default function PainEngine() {
             {aiSubTab === "trace" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 9, fontWeight: 700, color: th.purple, fontFamily: "monospace" }}>AI-DRIVEN TRACEABILITY MATRIX</span>
-                <button onClick={runAiTrace} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
+                <button onClick={runAiTrace} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.purple + "50", background: th.purple + "12", color: th.purple, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }} title="Send assessment scores and all active issues to AI for solution mapping">{aiLoading ? "ANALYZING..." : "GENERATE TRACEABILITY"}</button>
               </div>
               <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Sends assessment ({overallPain}/100), {activePains.length} pains, {activeConstraints.length} constraints to AI for GTT solution mapping.</div>
@@ -884,7 +885,7 @@ export default function PainEngine() {
             {aiSubTab === "resolve" && active.length > 0 && overallPain > 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 9, fontWeight: 700, color: th.cyan, fontFamily: "monospace" }}>AI-DRIVEN RESOLUTION PLAN</span>
-                <button onClick={runAiResolve} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }}>{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
+                <button onClick={runAiResolve} disabled={aiLoading} style={{ padding: "5px 14px", borderRadius: 4, border: "1px solid " + th.cyan + "50", background: th.cyan + "12", color: th.cyan, cursor: aiLoading ? "wait" : "pointer", fontSize: 10, fontWeight: 600 }} title="Send assessment and issues to AI for phased implementation planning">{aiLoading ? "GENERATING..." : "GENERATE RESOLUTION PLAN"}</button>
               </div>
               <div style={{ padding: 10, borderRadius: 5, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 10, color: th.t2, marginBottom: 8 }}>Generates phased plan with GTT products addressing pain intensity of {overallPain}/100 across {active.length} issues.</div>
