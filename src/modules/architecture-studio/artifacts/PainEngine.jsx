@@ -739,17 +739,17 @@ export default function PainEngine() {
                 return <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
                     <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>PRIORITY VS EFFORT TRIAGE</div>
-                    <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>{triageItems.length} issues plotted — higher priority at bottom, harder effort to the right</div>
+                    <div style={{ fontSize: 10, color: th.t3, marginBottom: 10 }}>{triageItems.length} issues plotted — high priority at top, high effort to the right</div>
                     <div style={{ position: "relative", width: "100%", paddingBottom: "60%", background: th.inset, borderRadius: 5, overflow: "hidden" }}>
-                      <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>MONITOR</div>
-                      <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>DEPRIORITIZE</div>
-                      <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700 }}>QUICK WINS</div>
-                      <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700 }}>STRATEGIC BETS</div>
+                      <div style={{ position: "absolute", top: "25%", left: "25%", transform: "translate(-50%,-50%)", fontSize: 10, color: th.ok, fontFamily: "monospace", fontWeight: 700 }}>QUICK WINS</div>
+                      <div style={{ position: "absolute", top: "25%", right: "25%", transform: "translate(50%,-50%)", fontSize: 10, color: th.warn, fontFamily: "monospace", fontWeight: 700 }}>STRATEGIC BETS</div>
+                      <div style={{ position: "absolute", bottom: "25%", left: "25%", transform: "translate(-50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>MONITOR</div>
+                      <div style={{ position: "absolute", bottom: "25%", right: "25%", transform: "translate(50%,50%)", fontSize: 10, color: th.t4, fontFamily: "monospace" }}>DEPRIORITIZE</div>
                       <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: th.brd }} />
                       <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: th.brd }} />
-                      <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, width: "50%", height: "50%", background: th.ok + "06" }} />
                       <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
-                      <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>← PRIORITY</div>
+                      <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>PRIORITY ↑</div>
                       {triageItems.map(function (t) {
                         return <div key={t.item.id} onClick={function () { setView("assess"); setExpandedId(t.item.id); }}
                           style={{ position: "absolute", left: t.x + "%", top: t.y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: t.ac + "20", border: "2px solid " + t.ac, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
