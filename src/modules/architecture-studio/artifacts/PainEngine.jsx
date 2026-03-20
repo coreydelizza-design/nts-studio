@@ -248,6 +248,7 @@ export default function PainEngine() {
   var [aiTrace, setAiTrace] = useState(null);
   var [aiResolution, setAiResolution] = useState(null);
   var [aiLoading, setAiLoading] = useState(false);
+  var [demoMode, setDemoMode] = useState(false);
   var [disabledDomains, setDisabledDomains] = useState({});
   var [disabledMetrics, setDisabledMetrics] = useState({});
 
@@ -320,6 +321,26 @@ export default function PainEngine() {
   function deleteItem(id) {
     setItems(function (p) { return p.filter(function (i) { return i.id !== id; }); });
     if (expandedId === id) setExpandedId(null);
+  }
+
+  function loadDemoData() {
+    setAssessment(Object.assign({}, MOCK_ASSESSMENT));
+    setItems(MOCK_ITEMS.map(function (item) { return Object.assign({}, item); }));
+    setDemoMode(true);
+    setExpandedId(null);
+    setAiTrace(null);
+    setAiResolution(null);
+  }
+
+  function clearDemoData() {
+    setAssessment(Object.assign({}, DEFAULT_ASSESSMENT));
+    setItems([]);
+    setDemoMode(false);
+    setExpandedId(null);
+    setDisabledDomains({});
+    setDisabledMetrics({});
+    setAiTrace(null);
+    setAiResolution(null);
   }
 
   function addItem(type, domainGroup, metricKey) {
@@ -522,6 +543,10 @@ export default function PainEngine() {
         <Tag color={overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4}>PAIN: {overallPain}/100</Tag>
         <Tag color={th.accent}>{active.length} ACTIVE</Tag>
       </div>
+      <button onClick={function () { if (demoMode) { clearDemoData(); } else { loadDemoData(); } }}
+        style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid " + (demoMode ? th.warn + "60" : th.accent + "40"), background: demoMode ? th.warn + "12" : th.accent + "08", color: demoMode ? th.warn : th.accent, cursor: "pointer", fontSize: 9, fontWeight: 700, fontFamily: "monospace", letterSpacing: 0.5 }}>
+        {demoMode ? "✕ CLEAR DEMO" : "▶ LOAD DEMO"}
+      </button>
       <button onClick={function () { setDark(!dark); }} style={{ width: 28, height: 28, borderRadius: 4, border: "1px solid " + th.brd, background: th.input, color: th.t2, cursor: "pointer", fontSize: 12 }}>{dark ? "\u2600" : "\u263E"}</button>
     </div>
 
