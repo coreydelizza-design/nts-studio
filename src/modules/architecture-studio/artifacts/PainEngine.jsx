@@ -611,7 +611,7 @@ export default function PainEngine() {
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 26, height: 26, borderRadius: 5, background: "linear-gradient(135deg, " + th.err + ", " + th.warn + ")", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#fff", fontWeight: 900, fontFamily: "monospace" }}>P</div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: th.t0 }}>Pain & Constraint Assessment Engine</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: th.t0 }}>Pain & Constraint Engine</div>
           <div style={{ fontSize: 8, color: th.t3, fontFamily: "monospace", letterSpacing: 0.5 }}>ARCHITECTURE STUDIO MODULE</div>
         </div>
         <div style={{ width: 1, height: 20, background: th.brd }} />
@@ -637,132 +637,158 @@ export default function PainEngine() {
 
         <div style={{ flex: 1, padding: 14, overflowY: "auto" }}>
           {/* ASSESS & CAPTURE */}
-          {view === "assess" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {/* Pain Intensity + Heat Map */}
-            <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
-              <div style={{ width: 130, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 4 }}>PAIN INTENSITY</div>
-                <div style={{ fontSize: 36, fontWeight: 900, color: overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4, fontFamily: "monospace", lineHeight: 1 }}>{overallPain}</div>
-                <div style={{ fontSize: 9, color: th.t3, fontFamily: "monospace" }}>/100</div>
+          {/* ASSESS */}
+          {view === "assess" && <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+            {/* LEFT: Domain Sliders */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(100vh - 140px)", overflowY: "auto", paddingRight: 8 }}>
+              {METRIC_GROUPS.map(function (group) {
+                var isDomainOff = !!disabledDomains[group.group];
+                var domainAvg = groupAvgs.find(function (g) { return g.group === group.group; });
+                var avgScore = domainAvg ? domainAvg.avg : 0;
+                var avgC = isDomainOff ? th.t4 : (avgScore > 0 ? (avgScore >= 70 ? th.err : avgScore >= 40 ? th.warn : th.ok) : th.t4);
+                return <div key={group.group} style={{ borderRadius: 6, background: th.card, border: "1px solid " + th.brd, opacity: isDomainOff ? 0.5 : 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
+                    <button onClick={function (e) { e.stopPropagation(); toggleDomain(group.group); }}
+                      style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (isDomainOff ? th.t4 : th.ok + "60"), background: isDomainOff ? th.t4 + "20" : th.ok + "15", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}
+                      title={isDomainOff ? "Enable " + group.group : "Disable " + group.group + " \u2014 exclude from scoring"}>
+                      <span style={{ fontSize: 11, color: isDomainOff ? th.t4 : th.ok }}>{isDomainOff ? "\u25CB" : "\u25CF"}</span>
+                    </button>
+                    <span style={{ fontSize: 16 }}>{group.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: isDomainOff ? th.t4 : th.t0, flex: 1, textDecoration: isDomainOff ? "line-through" : "none" }}>{group.group}</span>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: avgC, fontFamily: "monospace" }}>{isDomainOff ? "\u2014" : avgScore}</span>
+                  </div>
+                  {isDomainOff && <div style={{ padding: "6px 14px 10px" }}><span style={{ fontSize: 10, color: th.t4, fontFamily: "monospace" }}>EXCLUDED</span></div>}
+                  {!isDomainOff && <div style={{ padding: "0 14px 10px" }}>
+                    {group.metrics.map(function (m) {
+                      var val = assessment[m.key] || 0;
+                      var isMetricOff = !!disabledMetrics[m.key];
+                      var sliderC = isMetricOff ? th.t4 : (val > 0 ? (val >= 7 ? th.err : val >= 4 ? th.warn : th.ok) : th.t4);
+                      return <div key={m.key} style={{ marginBottom: 8, opacity: isMetricOff ? 0.35 : 1 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flex: 1 }}>
+                            <button onClick={function (e) { e.stopPropagation(); toggleMetric(m.key); }}
+                              style={{ width: 14, height: 14, borderRadius: "50%", border: "1px solid " + (isMetricOff ? th.t4 : th.ok + "60"), background: isMetricOff ? th.t4 + "20" : th.ok + "15", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, marginTop: 3 }}
+                              title={isMetricOff ? "Enable " + m.label : "Disable " + m.label}>
+                              <span style={{ fontSize: 8, color: isMetricOff ? th.t4 : th.ok }}>{isMetricOff ? "\u25CB" : "\u25CF"}</span>
+                            </button>
+                            <div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: isMetricOff ? th.t4 : th.t0, textDecoration: isMetricOff ? "line-through" : "none" }}>{m.label}</div>
+                              <div style={{ fontSize: 9, color: th.t3 }}>{m.desc}</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: 18, fontWeight: 900, color: sliderC, fontFamily: "monospace" }}>{isMetricOff ? "\u2014" : val}</span>
+                        </div>
+                        {!isMetricOff && <Slider value={val} onChange={function (v) { updateAssessment(m.key, v); }} th={th} color={sliderC} />}
+                        {isMetricOff && <div style={{ height: 16 }}><span style={{ fontSize: 9, color: th.t4, fontFamily: "monospace" }}>EXCLUDED</span></div>}
+                      </div>;
+                    })}
+                  </div>}
+                </div>;
+              })}
+            </div>
+
+            {/* RIGHT: Dashboard */}
+            <div style={{ width: 320, flexShrink: 0, display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(100vh - 140px)", overflowY: "auto" }}>
+              {/* Pain Intensity */}
+              <div style={{ padding: 16, borderRadius: 6, background: th.card, border: "1px solid " + th.brd, textAlign: "center" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>PAIN INTENSITY</div>
+                <div style={{ fontSize: 48, fontWeight: 900, color: overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4, fontFamily: "monospace", lineHeight: 1 }}>{overallPain}</div>
+                <div style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>/100</div>
+                <Tag color={active.length > 0 ? th.accent : th.t4} title="Active issues in scope">{active.length} issues captured</Tag>
               </div>
-              <div style={{ flex: 1, padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAIN HEAT MAP</div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+
+              {/* Domain Heatmap Grid */}
+              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAIN SEVERITY</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
                   {groupAvgs.map(function (g) {
                     var isOff = g.disabled;
                     var tileC = isOff ? th.t4 : (g.avg > 0 ? (g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok) : th.t4);
-                    return <div key={g.group} onClick={function () { toggleDomain(g.group); }}
-                      style={{ flex: "1 1 80px", padding: "8px 10px", borderRadius: 4, background: tileC + "08", textAlign: "center", opacity: isOff ? 0.35 : 1, cursor: "pointer", position: "relative" }}
-                      title={isOff ? g.group + " excluded \u2014 click to re-enable" : g.group + ": " + g.avg + "/100 severity \u2014 click to toggle scope"}>
+                    return <div key={g.group} style={{ padding: "8px 4px", borderRadius: 4, background: tileC + "10", border: "1px solid " + tileC + "20", textAlign: "center", opacity: isOff ? 0.3 : 1 }}>
                       <div style={{ fontSize: 14 }}>{g.icon}</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: tileC, fontFamily: "monospace", textDecoration: isOff ? "line-through" : "none" }}>{isOff ? "\u2014" : g.avg}</div>
-                      <div style={{ fontSize: 8, fontWeight: 600, color: isOff ? th.t4 : th.t2 }}>{g.group}</div>
-                      <div style={{ position: "absolute", top: 4, right: 4, width: 10, height: 10, borderRadius: "50%", border: "1px solid " + (isOff ? th.t4 : th.ok + "60"), background: isOff ? "transparent" : th.ok + "20", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {!isOff && <div style={{ width: 4, height: 4, borderRadius: "50%", background: th.ok }} />}
-                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: tileC, fontFamily: "monospace" }}>{isOff ? "\u2014" : g.avg}</div>
+                      <div style={{ fontSize: 7, color: th.t3, fontFamily: "monospace" }}>{g.group.split(" ")[0]}</div>
                     </div>;
                   })}
                 </div>
               </div>
-            </div>
 
-            {/* Guided banner */}
-            {active.length === 0 && overallPain === 0 && <div style={{ padding: 14, borderRadius: 6, background: th.accent + "06", border: "1px solid " + th.accent + "20" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 6, letterSpacing: 0.5 }}>WORKSHOP \u2014 ASSESS THE CUSTOMER'S NETWORK</div>
-              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, marginBottom: 10 }}>Walk through each domain with the customer. Move sliders based on what they tell you. As pain points and constraints emerge from the conversation, add them directly inside the relevant domain card. Scores cascade automatically.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>ASK</div>
-                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>"Where does your network hurt the most right now?"</div>
-                </div>
-                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>SCORE</div>
-                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Move sliders collaboratively \u2014 let the customer see and validate</div>
-                </div>
-                <div style={{ flex: 1, padding: "8px 10px", borderRadius: 4, background: th.card, border: "1px solid " + th.brd }}>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 3 }}>CAPTURE</div>
-                  <div style={{ fontSize: 10, color: th.t3, lineHeight: 1.3 }}>Add pain points and constraints inside each domain as they emerge</div>
-                </div>
+              {/* Top Friction Zones */}
+              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + (active.length > 0 ? th.err + "30" : th.brd) }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: active.length > 0 ? th.err : th.t3, fontFamily: "monospace", marginBottom: 6 }}>TOP FRICTION ZONES</div>
+                {active.length === 0 && <div style={{ padding: 12, textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: th.t3 }}>Capture issues on the next tab to surface friction zones here.</div>
+                </div>}
+                {active.slice().sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).slice(0, 6).map(function (item, i) {
+                  var pri = engine.priority(item);
+                  var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                  var isPain = (item.itemType || "pain") === "pain";
+                  return <div key={item.id} onClick={function () { setView("capture"); setExpandedId(item.id); }}
+                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 5, background: priC + "08", border: "1px solid " + priC + "15", marginBottom: 4, cursor: "pointer" }}>
+                    <div style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 900, color: priC, minWidth: 24 }}>#{i + 1}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: th.t0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</div>
+                      <div style={{ fontSize: 9, color: th.t3 }}>{isPain ? "Pain" : "Constraint"} \u00B7 {item.category}</div>
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</div>
+                  </div>;
+                })}
               </div>
+
+              {/* Constraint Narrative */}
+              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>CONSTRAINT NARRATIVE</div>
+                <div style={{ fontSize: 9, color: th.t4, marginBottom: 6 }}>Summarize the customer\u2019s situation for the proposal</div>
+                <textarea rows={3} placeholder="e.g. Acme Corp operates a fragmented multi-carrier network across 40+ sites..."
+                  style={{ width: "100%", background: th.input, border: "1px solid " + th.brd, borderRadius: 4, color: th.t0, fontFamily: "inherit", fontSize: 11, padding: 10, resize: "vertical", outline: "none", lineHeight: 1.5 }} />
+              </div>
+
+              <NextStep label="NEXT: CAPTURE ISSUES" onClick={function () { setView("capture"); setExpandedId(null); }} th={th} color={th.err} />
+            </div>
+          </div>}
+
+          {/* CAPTURE */}
+          {view === "capture" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Guided banner when empty */}
+            {active.length === 0 && <div style={{ padding: 14, borderRadius: 6, background: th.accent + "06", border: "1px solid " + th.accent + "20" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: th.accent, fontFamily: "monospace", marginBottom: 6, letterSpacing: 0.5 }}>CAPTURE PAIN POINTS & CONSTRAINTS</div>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5 }}>As the customer describes issues, add them inside the relevant domain below. Scores cascade automatically from the assessment sliders on the Assess tab.</div>
             </div>}
 
-            {/* Domain cards */}
+            {/* Domain cards with items */}
             {METRIC_GROUPS.map(function (group) {
               var isDomainOff = !!disabledDomains[group.group];
+              if (isDomainOff) return null;
               var domainItems = getItemsForDomain(group.group);
-              var domainPains = domainItems.filter(function (i) { return (i.itemType || "pain") === "pain"; });
-              var domainConstraints = domainItems.filter(function (i) { return i.itemType === "constraint"; });
               var domainAvg = groupAvgs.find(function (g) { return g.group === group.group; });
               var avgScore = domainAvg ? domainAvg.avg : 0;
-              var avgC = isDomainOff ? th.t4 : (avgScore > 0 ? (avgScore >= 70 ? th.err : avgScore >= 40 ? th.warn : th.ok) : th.t4);
+              var avgC = avgScore > 0 ? (avgScore >= 70 ? th.err : avgScore >= 40 ? th.warn : th.ok) : th.t4;
 
-              return <div key={group.group} style={{ borderRadius: 6, background: th.card, border: "1px solid " + th.brd, overflow: "hidden", opacity: isDomainOff ? 0.5 : 1 }}>
-                {/* Domain header */}
+              return <div key={group.group} style={{ borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px" }}>
-                  <button onClick={function (e) { e.stopPropagation(); toggleDomain(group.group); }}
-                    style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid " + (isDomainOff ? th.t4 : th.ok + "60"), background: isDomainOff ? th.t4 + "20" : th.ok + "15", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0 }}
-                    title={isDomainOff ? "Enable " + group.group : "Disable " + group.group}>
-                    <span style={{ fontSize: 11, color: isDomainOff ? th.t4 : th.ok }}>{isDomainOff ? "\u25CB" : "\u25CF"}</span>
-                  </button>
                   <span style={{ fontSize: 16 }}>{group.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: isDomainOff ? th.t4 : th.t0, flex: 1, textDecoration: isDomainOff ? "line-through" : "none" }}>{group.group}</span>
-                  {!isDomainOff && domainItems.length > 0 && <span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>{domainItems.length} item{domainItems.length !== 1 ? "s" : ""}</span>}
-                  <span style={{ fontSize: 18, fontWeight: 900, color: avgC, fontFamily: "monospace" }}>{isDomainOff ? "\u2014" : avgScore}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: th.t0, flex: 1 }}>{group.group}</span>
+                  {domainItems.length > 0 && <span style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>{domainItems.length} item{domainItems.length !== 1 ? "s" : ""}</span>}
+                  <span style={{ fontSize: 18, fontWeight: 900, color: avgC, fontFamily: "monospace" }}>{avgScore}</span>
                 </div>
-
-                {isDomainOff && <div style={{ padding: "8px 14px 10px", borderTop: "1px solid " + th.brd }}>
-                  <span style={{ fontSize: 10, color: th.t4, fontFamily: "monospace" }}>DOMAIN EXCLUDED \u2014 click \u25CF to re-enable</span>
-                </div>}
-
-                {!isDomainOff && <div>
-                {/* Sliders */}
                 <div style={{ padding: "0 14px 10px" }}>
-                  {group.metrics.map(function (m) {
-                    var val = assessment[m.key] || 0;
-                    var isMetricOff = !!disabledMetrics[m.key];
-                    var sliderC = isMetricOff ? th.t4 : (val > 0 ? (val >= 7 ? th.err : val >= 4 ? th.warn : th.ok) : th.t4);
-                    return <div key={m.key} style={{ marginBottom: 8, opacity: isMetricOff ? 0.35 : 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 }}>
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: 6, flex: 1 }}>
-                          <button onClick={function (e) { e.stopPropagation(); toggleMetric(m.key); }}
-                            style={{ width: 16, height: 16, borderRadius: "50%", border: "1px solid " + (isMetricOff ? th.t4 : th.ok + "60"), background: isMetricOff ? th.t4 + "20" : th.ok + "15", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 0, marginTop: 2 }}
-                            title={isMetricOff ? "Enable " + m.label : "Disable " + m.label}>
-                            <span style={{ fontSize: 9, color: isMetricOff ? th.t4 : th.ok }}>{isMetricOff ? "\u25CB" : "\u25CF"}</span>
-                          </button>
-                          <div>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: isMetricOff ? th.t4 : th.t0, textDecoration: isMetricOff ? "line-through" : "none" }}>{m.label}</div>
-                            <div style={{ fontSize: 9, color: th.t3 }}>{m.desc}</div>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: sliderC, fontFamily: "monospace" }}>{isMetricOff ? "\u2014" : val}</span>
-                      </div>
-                      {!isMetricOff && <Slider value={val} onChange={function (v) { updateAssessment(m.key, v); }} th={th} color={sliderC} />}
-                      {isMetricOff && <div style={{ height: 20, display: "flex", alignItems: "center" }}><span style={{ fontSize: 9, color: th.t4, fontFamily: "monospace" }}>EXCLUDED FROM SCORING</span></div>}
-                      {!isMetricOff && (function () {
-                        var metricItems = active.filter(function (it) { return it.linkedMetrics && it.linkedMetrics.indexOf(m.key) !== -1; });
-                        return <div style={{ marginTop: 4 }}>
-                          {metricItems.map(function (it) { return renderInlineItem(it); })}
-                          <button onClick={function (e) { e.stopPropagation(); addItem("pain", group.group, m.key); }}
-                            style={{ display: "flex", alignItems: "center", gap: 4, width: "100%", padding: "4px 10px", borderRadius: 4, border: "1px dashed " + th.accent + "30", background: "transparent", color: th.accent, cursor: "pointer", fontSize: 9, fontWeight: 500, marginTop: 4 }}>
-                            <span style={{ fontSize: 12, lineHeight: "12px" }}>+</span> Add issue for {m.label}
-                          </button>
-                        </div>;
-                      })()}
-                    </div>;
-                  })}
+                  {domainItems.map(function (item) { return renderInlineItem(item); })}
+                  <button onClick={function () { addItem("pain", group.group); }}
+                    style={{ display: "flex", alignItems: "center", gap: 5, width: "100%", padding: "6px 12px", borderRadius: 4, border: "1px dashed " + th.accent + "40", background: th.accent + "04", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 500, marginTop: 4 }}>
+                    <span style={{ fontSize: 14, lineHeight: "14px" }}>+</span> Add issue
+                  </button>
                 </div>
-
-              </div>}
               </div>;
             })}
+            <NextStep label="NEXT: STRATEGY" onClick={function () { setView("strategy"); setExpandedId(null); }} th={th} color={th.purple} />
           </div>}
 
           {/* STRATEGY & ACTION */}
           {view === "strategy" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {active.length === 0 && <div style={{ padding: 20, borderRadius: 6, background: th.purple + "05", border: "1px solid " + th.purple + "18", textAlign: "center" }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: th.purple, fontFamily: "monospace", marginBottom: 6 }}>STRATEGY & ACTION — WAITING FOR DATA</div>
-              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>Capture issues on the Assess & Capture tab first. This view will auto-populate from your scoring data.</div>
-              <button onClick={function () { setView("assess"); }} style={{ padding: "6px 14px", borderRadius: 4, border: "1px solid " + th.accent + "30", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>Go to Assess & Capture →</button>
+              <div style={{ fontSize: 11, color: th.t2, lineHeight: 1.5, maxWidth: 400, margin: "0 auto", marginBottom: 12 }}>Capture issues on the Capture tab first. This view will auto-populate from your scoring data.</div>
+              <button onClick={function () { setView("capture"); }} style={{ padding: "6px 14px", borderRadius: 4, border: "1px solid " + th.accent + "30", background: th.accent + "06", color: th.accent, cursor: "pointer", fontSize: 10, fontWeight: 600, fontFamily: "monospace" }}>Go to Capture →</button>
             </div>}
             {active.length > 0 && <div>
               <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
@@ -802,7 +828,7 @@ export default function PainEngine() {
                       <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>EFFORT →</div>
                       <div style={{ position: "absolute", left: 4, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "0 0", fontSize: 8, color: th.t4, fontFamily: "monospace" }}>PRIORITY ↑</div>
                       {triageItems.map(function (t) {
-                        return <div key={t.item.id} onClick={function () { setView("assess"); setExpandedId(t.item.id); }}
+                        return <div key={t.item.id} onClick={function () { setView("capture"); setExpandedId(t.item.id); }}
                           style={{ position: "absolute", left: t.x + "%", top: t.y + "%", transform: "translate(-50%,-50%)", width: 28, height: 28, borderRadius: "50%", background: t.ac + "20", border: "2px solid " + t.ac, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2 }}
                           title={t.item.description + " (Priority: " + t.pri + ", Effort: " + t.sc.effort + ", Impact: " + t.sc.impact + ")"}>
                           <span style={{ fontSize: 9, fontWeight: 800, color: t.priC, fontFamily: "monospace" }}>{t.pri}</span>
@@ -877,7 +903,7 @@ export default function PainEngine() {
                         var ic = isPain ? th.err : th.warn;
                         var pri = engine.priority(item);
                         var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
-                        return <div key={item.id} onClick={function () { setView("assess"); setExpandedId(item.id); }}
+                        return <div key={item.id} onClick={function () { setView("capture"); setExpandedId(item.id); }}
                           style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderTop: "1px solid " + pc + "10", cursor: "pointer" }}>
                           <span style={{ width: 6, height: 6, borderRadius: "50%", background: ic, flexShrink: 0 }} />
                           <Tag color={ic} style={{ flexShrink: 0 }}>{isPain ? "PAIN" : "CNST"}</Tag>
