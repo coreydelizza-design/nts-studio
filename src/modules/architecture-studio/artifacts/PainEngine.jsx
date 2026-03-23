@@ -714,6 +714,38 @@ export default function PainEngine() {
                 </div>
               </div>
 
+
+              {/* Metric Severity Grid */}
+              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>ALL METRICS</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }}>
+                  {METRIC_GROUPS.reduce(function (all, g) { return all.concat(g.metrics.map(function (m) { return { key: m.key, label: m.label, icon: g.icon, group: g.group, disabled: !!disabledDomains[g.group] || !!disabledMetrics[m.key] }; })); }, []).map(function (m) {
+                    var val = assessment[m.key] || 0;
+                    var isOff = m.disabled;
+                    var mc = isOff ? th.t4 : (val >= 8 ? th.err : val >= 6 ? th.warn : val >= 3 ? th.cyan : th.t4);
+                    return <div key={m.key} style={{ padding: "6px 4px", borderRadius: 4, background: mc + "10", border: "1px solid " + mc + "20", textAlign: "center", opacity: isOff ? 0.25 : 1 }}
+                      title={m.label + " (" + m.group + ") " + (isOff ? "— excluded" : val + "/10")}>
+                      <div style={{ fontSize: 12 }}>{m.icon}</div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: mc, fontFamily: "monospace" }}>{isOff ? "—" : val}</div>
+                      <div style={{ fontSize: 6, color: th.t3, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.label.split(" ").slice(0, 2).join(" ")}</div>
+                    </div>;
+                  })}
+                </div>
+              </div>
+
+              {/* Priority Bands */}
+              {active.length > 0 && <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>PRIORITY BANDS</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {[{ l: "CRIT", mn: 80, c: th.err }, { l: "HIGH", mn: 60, c: th.warn }, { l: "MED", mn: 40, c: th.accent }, { l: "LOW", mn: 0, c: th.ok }].map(function (b) {
+                    var cnt = active.filter(function (i) { var pp = engine.priority(i); return b.mn === 0 ? pp < 40 : b.mn === 40 ? pp >= 40 && pp < 60 : b.mn === 60 ? pp >= 60 && pp < 80 : pp >= 80; }).length;
+                    return <div key={b.l} style={{ flex: 1, textAlign: "center", padding: "8px 4px", borderRadius: 4, background: cnt > 0 ? b.c + "10" : th.inset, border: "1px solid " + (cnt > 0 ? b.c + "20" : th.brd) }}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{cnt}</div>
+                      <div style={{ fontSize: 7, fontWeight: 700, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{b.l}</div>
+                    </div>;
+                  })}
+                </div>
+              </div>}
               {/* Top Friction Zones */}
               <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + (active.length > 0 ? th.err + "30" : th.brd) }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: active.length > 0 ? th.err : th.t3, fontFamily: "monospace", marginBottom: 6 }}>TOP FRICTION ZONES</div>
