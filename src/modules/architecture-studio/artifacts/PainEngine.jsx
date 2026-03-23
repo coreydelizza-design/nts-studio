@@ -599,6 +599,7 @@ export default function PainEngine() {
 
   var VIEWS = [
     { id: "assess", label: "Assess Environment" },
+    { id: "dashboard", label: "Dashboard" },
     { id: "capture", label: "Capture Issues" },
     { id: "strategy", label: "Strategy" },
     { id: "ai", label: "AI Analysis" },
@@ -639,7 +640,7 @@ export default function PainEngine() {
         <div style={{ flex: 1, padding: 14, overflowY: "auto" }}>
           {/* ASSESS & CAPTURE */}
           {/* ASSESS */}
-          {view === "assess" && <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+          {view === "assess" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {/* LEFT: Domain Sliders */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(100vh - 140px)", overflowY: "auto", paddingRight: 8 }}>
               {METRIC_GROUPS.map(function (group) {
@@ -688,94 +689,102 @@ export default function PainEngine() {
               })}
             </div>
 
-            {/* RIGHT: Dashboard */}
-            <div style={{ width: 320, flexShrink: 0, display: "flex", flexDirection: "column", gap: 10, maxHeight: "calc(100vh - 140px)", overflowY: "auto" }}>
-              {/* Pain Intensity */}
-              <div style={{ padding: 16, borderRadius: 6, background: th.card, border: "1px solid " + th.brd, textAlign: "center" }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>PAIN INTENSITY</div>
-                <div style={{ fontSize: 48, fontWeight: 900, color: overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4, fontFamily: "monospace", lineHeight: 1 }}>{overallPain}</div>
-                <div style={{ fontSize: 10, color: th.t3, fontFamily: "monospace" }}>/100</div>
-                <Tag color={active.length > 0 ? th.accent : th.t4} title="Active issues in scope">{active.length} issues captured</Tag>
-              </div>
+          </div>}
 
-              {/* Domain Heatmap Grid */}
-              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+          {/* DASHBOARD */}
+          {view === "dashboard" && <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Pain Intensity + Domain Grid */}
+            <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+              <div style={{ width: 160, padding: 20, borderRadius: 6, background: th.card, border: "1px solid " + th.brd, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>PAIN INTENSITY</div>
+                <div style={{ fontSize: 52, fontWeight: 900, color: overallPain > 0 ? (overallPain >= 70 ? th.err : overallPain >= 40 ? th.warn : th.ok) : th.t4, fontFamily: "monospace", lineHeight: 1 }}>{overallPain}</div>
+                <div style={{ fontSize: 11, color: th.t3, fontFamily: "monospace" }}>/100</div>
+                <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+                  <Tag color={active.length > 0 ? th.accent : th.t4}>{active.length} issues</Tag>
+                  <Tag color={activePains.length > 0 ? th.err : th.t4}>{activePains.length} pains</Tag>
+                  <Tag color={activeConstraints.length > 0 ? th.warn : th.t4}>{activeConstraints.length} constraints</Tag>
+                </div>
+              </div>
+              <div style={{ flex: 1, padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>DOMAIN SEVERITY</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {groupAvgs.map(function (g) {
                     var isOff = g.disabled;
                     var tileC = isOff ? th.t4 : (g.avg > 0 ? (g.avg >= 70 ? th.err : g.avg >= 40 ? th.warn : th.ok) : th.t4);
-                    return <div key={g.group} style={{ padding: "8px 4px", borderRadius: 4, background: tileC + "10", border: "1px solid " + tileC + "20", textAlign: "center", opacity: isOff ? 0.3 : 1 }}>
-                      <div style={{ fontSize: 14 }}>{g.icon}</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: tileC, fontFamily: "monospace" }}>{isOff ? "\u2014" : g.avg}</div>
-                      <div style={{ fontSize: 7, color: th.t3, fontFamily: "monospace" }}>{g.group.split(" ")[0]}</div>
+                    return <div key={g.group} style={{ flex: "1 1 80px", padding: "10px 8px", borderRadius: 5, background: tileC + "10", border: "1px solid " + tileC + "20", textAlign: "center", opacity: isOff ? 0.3 : 1 }}>
+                      <div style={{ fontSize: 18 }}>{g.icon}</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: tileC, fontFamily: "monospace" }}>{isOff ? "\u2014" : g.avg}</div>
+                      <div style={{ fontSize: 8, fontWeight: 600, color: isOff ? th.t4 : th.t2 }}>{g.group}</div>
                     </div>;
                   })}
                 </div>
               </div>
+            </div>
 
-
-              {/* Metric Severity Grid */}
+            {/* Constraint Heatmap + Priority Bands */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>ALL METRICS</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>CONSTRAINT HEATMAP</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 5 }}>
                   {METRIC_GROUPS.reduce(function (all, g) { return all.concat(g.metrics.map(function (m) { return { key: m.key, label: m.label, icon: g.icon, group: g.group, disabled: !!disabledDomains[g.group] || !!disabledMetrics[m.key] }; })); }, []).map(function (m) {
                     var val = assessment[m.key] || 0;
                     var isOff = m.disabled;
                     var mc = isOff ? th.t4 : (val >= 8 ? th.err : val >= 6 ? th.warn : val >= 3 ? th.cyan : th.t4);
-                    return <div key={m.key} style={{ padding: "6px 4px", borderRadius: 4, background: mc + "10", border: "1px solid " + mc + "20", textAlign: "center", opacity: isOff ? 0.25 : 1 }}
-                      title={m.label + " (" + m.group + ") " + (isOff ? "— excluded" : val + "/10")}>
-                      <div style={{ fontSize: 12 }}>{m.icon}</div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: mc, fontFamily: "monospace" }}>{isOff ? "—" : val}</div>
-                      <div style={{ fontSize: 6, color: th.t3, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.label.split(" ").slice(0, 2).join(" ")}</div>
+                    return <div key={m.key} style={{ padding: "8px 4px", borderRadius: 4, background: mc + "10", border: "1px solid " + mc + "20", textAlign: "center", opacity: isOff ? 0.25 : 1 }}
+                      title={m.label + " (" + m.group + ") " + (isOff ? "\u2014 excluded" : val + "/10")}>
+                      <div style={{ fontSize: 14 }}>{m.icon}</div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: mc, fontFamily: "monospace" }}>{isOff ? "\u2014" : val}</div>
+                      <div style={{ fontSize: 7, color: th.t3, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.label.split(" ").slice(0, 2).join(" ")}</div>
                     </div>;
                   })}
                 </div>
               </div>
-
-              {/* Priority Bands */}
-              {active.length > 0 && <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>PRIORITY BANDS</div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {[{ l: "CRIT", mn: 80, c: th.err }, { l: "HIGH", mn: 60, c: th.warn }, { l: "MED", mn: 40, c: th.accent }, { l: "LOW", mn: 0, c: th.ok }].map(function (b) {
-                    var cnt = active.filter(function (i) { var pp = engine.priority(i); return b.mn === 0 ? pp < 40 : b.mn === 40 ? pp >= 40 && pp < 60 : b.mn === 60 ? pp >= 60 && pp < 80 : pp >= 80; }).length;
-                    return <div key={b.l} style={{ flex: 1, textAlign: "center", padding: "8px 4px", borderRadius: 4, background: cnt > 0 ? b.c + "10" : th.inset, border: "1px solid " + (cnt > 0 ? b.c + "20" : th.brd) }}>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{cnt}</div>
-                      <div style={{ fontSize: 7, fontWeight: 700, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{b.l}</div>
-                    </div>;
-                  })}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 8 }}>PRIORITY BANDS</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {[{ l: "CRITICAL", mn: 80, c: th.err }, { l: "HIGH", mn: 60, c: th.warn }, { l: "MEDIUM", mn: 40, c: th.accent }, { l: "LOW", mn: 0, c: th.ok }].map(function (b) {
+                      var cnt = active.filter(function (i) { var pp = engine.priority(i); return b.mn === 0 ? pp < 40 : b.mn === 40 ? pp >= 40 && pp < 60 : b.mn === 60 ? pp >= 60 && pp < 80 : pp >= 80; }).length;
+                      return <div key={b.l} style={{ flex: 1, textAlign: "center", padding: "10px 6px", borderRadius: 5, background: cnt > 0 ? b.c + "10" : th.inset, border: "1px solid " + (cnt > 0 ? b.c + "20" : th.brd) }}>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{cnt}</div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: cnt > 0 ? b.c : th.t4, fontFamily: "monospace" }}>{b.l}</div>
+                      </div>;
+                    })}
+                  </div>
                 </div>
+                <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd, flex: 1 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>CONSTRAINT NARRATIVE</div>
+                  <div style={{ fontSize: 9, color: th.t4, marginBottom: 6 }}>Summarize the customer\u2019s situation for the proposal</div>
+                  <textarea rows={4} placeholder="e.g. Acme Corp operates a fragmented multi-carrier network across 40+ sites..."
+                    style={{ width: "100%", background: th.input, border: "1px solid " + th.brd, borderRadius: 4, color: th.t0, fontFamily: "inherit", fontSize: 11, padding: 10, resize: "vertical", outline: "none", lineHeight: 1.5 }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Top Friction Zones */}
+            <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + (active.length > 0 ? th.err + "30" : th.brd) }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: active.length > 0 ? th.err : th.t3, fontFamily: "monospace", marginBottom: 8 }}>TOP FRICTION ZONES</div>
+              {active.length === 0 && <div style={{ padding: 16, textAlign: "center" }}>
+                <div style={{ fontSize: 24, opacity: 0.15, marginBottom: 6 }}>▲</div>
+                <div style={{ fontSize: 11, color: th.t3 }}>Items rated with high priority will surface here. Capture issues on the Capture Issues tab.</div>
               </div>}
-              {/* Top Friction Zones */}
-              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + (active.length > 0 ? th.err + "30" : th.brd) }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: active.length > 0 ? th.err : th.t3, fontFamily: "monospace", marginBottom: 6 }}>TOP FRICTION ZONES</div>
-                {active.length === 0 && <div style={{ padding: 12, textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: th.t3 }}>Capture issues on the next tab to surface friction zones here.</div>
-                </div>}
-                {active.slice().sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).slice(0, 6).map(function (item, i) {
-                  var pri = engine.priority(item);
-                  var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
-                  var isPain = (item.itemType || "pain") === "pain";
-                  return <div key={item.id} onClick={function () { setView("capture"); setExpandedId(item.id); }}
-                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 5, background: priC + "08", border: "1px solid " + priC + "15", marginBottom: 4, cursor: "pointer" }}>
-                    <div style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 900, color: priC, minWidth: 24 }}>#{i + 1}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: th.t0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</div>
-                      <div style={{ fontSize: 9, color: th.t3 }}>{isPain ? "Pain" : "Constraint"} \u00B7 {item.category}</div>
-                    </div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</div>
-                  </div>;
-                })}
-              </div>
-
-              {/* Constraint Narrative */}
-              <div style={{ padding: 14, borderRadius: 6, background: th.card, border: "1px solid " + th.brd }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: th.t3, fontFamily: "monospace", marginBottom: 6 }}>CONSTRAINT NARRATIVE</div>
-                <div style={{ fontSize: 9, color: th.t4, marginBottom: 6 }}>Summarize the customer\u2019s situation for the proposal</div>
-                <textarea rows={3} placeholder="e.g. Acme Corp operates a fragmented multi-carrier network across 40+ sites..."
-                  style={{ width: "100%", background: th.input, border: "1px solid " + th.brd, borderRadius: 4, color: th.t0, fontFamily: "inherit", fontSize: 11, padding: 10, resize: "vertical", outline: "none", lineHeight: 1.5 }} />
-              </div>
-
+              {active.slice().sort(function (a, b) { return engine.priority(b) - engine.priority(a); }).map(function (item, i) {
+                var pri = engine.priority(item);
+                var priC = pri >= 80 ? th.err : pri >= 60 ? th.warn : pri >= 40 ? th.accent : th.ok;
+                var isPain = (item.itemType || "pain") === "pain";
+                return <div key={item.id} onClick={function () { setView("capture"); setExpandedId(item.id); }}
+                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 5, background: priC + "08", border: "1px solid " + priC + "15", marginBottom: 5, cursor: "pointer" }}>
+                  <div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 900, color: priC, minWidth: 28 }}>#{i + 1}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: th.t0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.description || "(untitled)"}</div>
+                    <div style={{ fontSize: 9, color: th.t3 }}>{isPain ? "Pain" : "Constraint"} \u00B7 {item.category}</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: priC, fontFamily: "monospace" }}>{pri}</div>
+                    <div style={{ fontSize: 7, color: th.t3, fontFamily: "monospace" }}>PRIORITY</div>
+                  </div>
+                </div>;
+              })}
             </div>
           </div>}
 
