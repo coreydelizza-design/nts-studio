@@ -314,7 +314,7 @@ export default function PainEngine() {
 
   var [items, setItems] = useState(INITIAL_ITEMS);
   var [assessment, setAssessment] = useState(DEFAULT_ASSESSMENT);
-  var [view, setView] = useState("assess");
+  var [view, setView] = useState("dashboard");
   var [expandedId, setExpandedId] = useState(null);
   var [aiSubTab, setAiSubTab] = useState("trace");
   var [strategySubTab, setStrategySubTab] = useState("triage");
@@ -598,8 +598,8 @@ export default function PainEngine() {
   }
 
   var VIEWS = [
-    { id: "assess", label: "Assess Environment" },
     { id: "dashboard", label: "Dashboard" },
+    { id: "assess", label: "Assess Environment" },
     { id: "capture", label: "Capture Issues" },
     { id: "strategy", label: "Strategy" },
     { id: "ai", label: "AI Analysis" },
