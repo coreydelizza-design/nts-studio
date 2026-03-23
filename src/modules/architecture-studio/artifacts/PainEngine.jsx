@@ -598,8 +598,9 @@ export default function PainEngine() {
   }
 
   var VIEWS = [
-    { id: "assess", label: "Assess & Capture" },
-    { id: "strategy", label: "Strategy & Action" },
+    { id: "assess", label: "Assess Environment" },
+    { id: "capture", label: "Capture Issues" },
+    { id: "strategy", label: "Strategy" },
     { id: "ai", label: "AI Analysis" },
   ];
 
@@ -743,7 +744,6 @@ export default function PainEngine() {
                   style={{ width: "100%", background: th.input, border: "1px solid " + th.brd, borderRadius: 4, color: th.t0, fontFamily: "inherit", fontSize: 11, padding: 10, resize: "vertical", outline: "none", lineHeight: 1.5 }} />
               </div>
 
-              <NextStep label="NEXT: CAPTURE ISSUES" onClick={function () { setView("capture"); setExpandedId(null); }} th={th} color={th.err} />
             </div>
           </div>}
 
